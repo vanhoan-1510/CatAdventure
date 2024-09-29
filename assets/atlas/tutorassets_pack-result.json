@@ -1,0 +1,135 @@
+{
+  "frames": {
+    "helpbanner": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 1433,
+        "h": 1300
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 1433,
+        "h": 1300
+      },
+      "sourceSize": {
+        "w": 1433,
+        "h": 1300
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "arrow": {
+      "frame": {
+        "x": 0,
+        "y": 1300,
+        "w": 686,
+        "h": 687
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 686,
+        "h": 687
+      },
+      "sourceSize": {
+        "w": 686,
+        "h": 687
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "save": {
+      "frame": {
+        "x": 686,
+        "y": 1300,
+        "w": 686,
+        "h": 687
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 686,
+        "h": 687
+      },
+      "sourceSize": {
+        "w": 686,
+        "h": 687
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "message": {
+      "frame": {
+        "x": 1372,
+        "y": 1300,
+        "w": 658,
+        "h": 368
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 658,
+        "h": 368
+      },
+      "sourceSize": {
+        "w": 658,
+        "h": 368
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "becarefulfbanner": {
+      "frame": {
+        "x": 1433,
+        "y": 0,
+        "w": 686,
+        "h": 300
+      },
+      "rotated": true,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 686,
+        "h": 300
+      },
+      "sourceSize": {
+        "w": 686,
+        "h": 300
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    }
+  },
+  "meta": {
+    "app": "http://github.com/odrick/free-tex-packer-core",
+    "version": "0.3.4",
+    "image": "tutorassets_pack-result.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 2030,
+      "h": 1987
+    },
+    "scale": 1
+  }
+}

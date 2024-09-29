@@ -1,0 +1,39 @@
+{
+  "frames": {
+    "bg": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 1000,
+        "h": 750
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 1000,
+        "h": 750
+      },
+      "sourceSize": {
+        "w": 1000,
+        "h": 750
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    }
+  },
+  "meta": {
+    "app": "http://github.com/odrick/free-tex-packer-core",
+    "version": "0.3.4",
+    "image": "background_pack-result.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 1000,
+      "h": 750
+    },
+    "scale": 1
+  }
+}

@@ -1,0 +1,22 @@
+{
+    "bundles": 
+    [
+      {
+        "name": "load-tile-map",
+        "assets": [
+            {
+                "alias": "background",
+                "src": "./raw_atlas/background/bg.png"
+            },
+            {
+                "alias": "tilemap",
+                "src": "./atlas/tilemap_pack-result.json"
+            },
+            {
+                "alias": "character",
+                "src": "./atlas/character_pack-result.json"
+            }
+        ]
+      }
+    ]
+  }
