@@ -1,60 +1,61 @@
 import { Body } from "./body";
 
 export class Collision {
-
     static checkCollision(bodyA: Body, bodyB: Body): boolean {
-        const dx = bodyA.position.x - bodyB.position.x;
-        const dy = bodyA.position.y - bodyB.position.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        const isColliding = distance < (bodyA.radius + bodyB.radius);
+        // Check if bodyA's AABB overlaps with bodyB's AABB
+        const aLeft = bodyA.position.x;
+        const aRight = bodyA.position.x + bodyA.width;
+        const aTop = bodyA.position.y;
+        const aBottom = bodyA.position.y + bodyA.height;
+
+        const bLeft = bodyB.position.x;
+        const bRight = bodyB.position.x + bodyB.width;
+        const bTop = bodyB.position.y;
+        const bBottom = bodyB.position.y + bodyB.height;
+
+        const isColliding = aRight > bLeft && aLeft < bRight && aBottom > bTop && aTop < bBottom;
         return isColliding;
     }
 
-    static resolveCollision(bodyA: Body, bodyB: Body) {
+        static resolveCollision(bodyA: Body, bodyB: Body) {
         if (this.checkCollision(bodyA, bodyB)) {
-            const dx = bodyA.position.x - bodyB.position.x;
-            const dy = bodyA.position.y - bodyB.position.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-
-            const overlap = bodyA.radius + bodyB.radius - distance;
-            const nx = dx / distance;
-            const ny = dy / distance;
-
-            bodyA.position.x += nx * overlap / 2;
-            bodyA.position.y += ny * overlap / 2;
-
-            if (!bodyB.isStatic) {
-                bodyB.position.x -= nx * overlap / 2;
-                bodyB.position.y -= ny * overlap / 2;
+            // Calculate the overlap in both x and y directions
+            const overlapX = Math.min(bodyA.position.x + bodyA.width - bodyB.position.x, bodyB.position.x + bodyB.width - bodyA.position.x);
+            const overlapY = Math.min(bodyA.position.y + bodyA.height - bodyB.position.y, bodyB.position.y + bodyB.height - bodyA.position.y);
+    
+            // Resolve collision by pushing the bodies apart
+            if (overlapX < overlapY) {
+                if (bodyA.position.x < bodyB.position.x) {
+                    bodyA.position.x -= overlapX;
+                    // if (!bodyB.isStatic) bodyB.position.x += overlapX;
+                } else {
+                    bodyA.position.x += overlapX;
+                    if (!bodyB.isStatic) bodyB.position.x -= overlapX;
+                }
+                // Reverse x velocity due to collision
+                bodyA.velocity.x = -bodyA.velocity.x * Math.min(bodyA.restitution, bodyB.restitution);
+                if (!bodyB.isStatic) {
+                    bodyB.velocity.x = -bodyB.velocity.x * Math.min(bodyA.restitution, bodyB.restitution);
+                }
+            } else {
+                if (bodyA.position.y < bodyB.position.y) {
+                    bodyA.position.y -= overlapY;
+                    if (!bodyB.isStatic) bodyB.position.y += overlapY;
+                } else {
+                    bodyA.position.y += overlapY;
+                    if (!bodyB.isStatic) bodyB.position.y -= overlapY;
+                }
+                // Reverse y velocity due to collision
+                bodyA.velocity.y = -bodyA.velocity.y * Math.min(bodyA.restitution, bodyB.restitution);
+                if (!bodyB.isStatic) {
+                    bodyB.velocity.y = -bodyB.velocity.y * Math.min(bodyA.restitution, bodyB.restitution);
+                }
             }
-
-            const relativeVelocityX = bodyA.velocity.x - bodyB.velocity.x;
-            const relativeVelocityY = bodyA.velocity.y - bodyB.velocity.y;
-            const velocityAlongNormal = relativeVelocityX * nx + relativeVelocityY * ny;
-
-            if (velocityAlongNormal > 0) {
-                return; // Nếu bóng di chuyển ra xa, không xử lý
-            }
-
-            // Tính hệ số đàn hồi (restitution)
-            const restitution = Math.min(bodyA.restitution, bodyB.restitution);
-            const impulse = (-(1 + restitution) * velocityAlongNormal) / (bodyA.mass + bodyB.mass);
-
-            // Cập nhật vận tốc dựa trên va chạm
-            bodyA.velocity.x -= impulse * bodyB.mass * nx;
-            bodyA.velocity.y -= impulse * bodyB.mass * ny;
-
-            if (!bodyB.isStatic) {
-                bodyB.velocity.x += impulse * bodyA.mass * nx;
-                bodyB.velocity.y += impulse * bodyA.mass * ny;
-            }
-
-            bodyA.velocity.x = -bodyA.velocity.x * restitution;
-            bodyA.velocity.y = -bodyA.velocity.y * restitution;
-
-            if (!bodyB.isStatic) {
-                bodyB.velocity.x = -bodyB.velocity.x * restitution;
-                bodyB.velocity.y = -bodyB.velocity.y * restitution;
+    
+            // Ensure the character is placed exactly on top of the tile if the collision is from above
+            if (overlapY < overlapX && bodyA.position.y < bodyB.position.y) {
+                bodyA.position.y = bodyB.position.y - bodyA.height;
+                bodyA.velocity.y = 0; // Stop downward movement on the collision
             }
         }
     }

@@ -1,6 +1,7 @@
 import { Application, Assets, Graphics, Sprite } from 'pixi.js';
 import { AssetsLoader } from './assets_handle/assetsloader';
 import { GameBoard } from './game_setup/gameboard';
+import { TileMap } from './tile_map/tilemap';
 
 
 // Asynchronous IIFE

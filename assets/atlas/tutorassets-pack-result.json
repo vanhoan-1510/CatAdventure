@@ -124,7 +124,7 @@
   "meta": {
     "app": "http://github.com/odrick/free-tex-packer-core",
     "version": "0.3.4",
-    "image": "tutorassets_pack-result.png",
+    "image": "tutorassets-pack-result.png",
     "format": "RGBA8888",
     "size": {
       "w": 2030,

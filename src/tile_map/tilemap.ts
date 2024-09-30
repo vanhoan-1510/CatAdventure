@@ -1,81 +1,63 @@
-import { Application, Assets, Texture, TilingSprite } from 'pixi.js';
+import { Assets, Texture, TilingSprite, Point, Container } from 'pixi.js';
 import { CompositeTilemap } from '@pixi/tilemap';
 import { Body } from '../physics/body';
 import { World } from '../physics/world';
+import { GameConfig } from '../game_setup/gameconfig';
 
-export class TileMap {
-    private app: Application;
+export class TileMap extends Container{
     private tilemap: CompositeTilemap;
-    private tileTextures: Texture[] = [];
-    public tileSize = 32; // Kích thước mỗi ô
     public world: World;
+    private bgSprite: TilingSprite; // Thêm biến cho TilingSprite
 
     // Mảng đại diện cho tilemap
     public map: number[][]; 
 
-    constructor(app: Application, world: World) {
-        this.app = app;
+    constructor(world: World){
+        super();
         this.tilemap = new CompositeTilemap();
         this.map = []; // Khởi tạo mảng tilemap
         this.world = world; // Khởi tạo world từ tham số truyền vào
         this.Init();
     }
 
-    async SetBackground() {
-        const bgTexture = await Assets.get('background');
-        const bgSprite = TilingSprite.from(bgTexture, {
-            width: this.app.screen.width,
-            height: this.app.screen.height,
+    SetBackground() {
+        const bgTexture = Assets.get('background');
+        this.bgSprite = TilingSprite.from(bgTexture, {
+            width: 90000,
+            height: GameConfig.HEIGHT,
         });
-        this.app.stage.addChild(bgSprite);
+        this.addChild(this.bgSprite);
     }
 
-    async DrawTileMap() {
+    DrawTileMap() {
         const textures: Texture[] = [];
         
         for (let i = 1; i <= 18; i++) {
-            const texture = await Assets.get(`tile${i}`);
+            const texture = Assets.get(`tile${i}`);
             textures.push(texture);
         }
 
-        // Mảng đại diện cho tilemap
-        this.map = [
-            [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3],
-            [4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6],
-            [4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6],
-            [4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6],
-            [4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6],
-            [4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6],
-            [4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6],
-            [4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6],
-            [4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6],
-            [8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 10]
-        ];
+        this.map = GameConfig.TILE_MAP; // Gán giá trị từ GameConfig.TILE_MAP cho map
 
         for (let y = 0; y < this.map.length; y++) {
             for (let x = 0; x < this.map[y].length; x++) {
                 const tileType = this.map[y][x];
                 const texture = textures[tileType - 1];
-                const startY = this.app.screen.height / 2 + 50;
-                this.tilemap.tile(texture, x * this.tileSize, startY + y * this.tileSize);
-                const tileBody = new Body(x * this.tileSize, startY + y * this.tileSize + this.tileSize, this.tileSize/2, 0, true, 0);
+                const startY = GameConfig.HEIGHT / 2 + GameConfig.TILE_SIZE * 2;
+                this.tilemap.tile(texture, x * GameConfig.TILE_SIZE, startY + y * GameConfig.TILE_SIZE);
+                const tileBody = new Body(x * GameConfig.TILE_SIZE + GameConfig.TILE_SIZE / 2, startY + y * GameConfig.TILE_SIZE + GameConfig.TILE_SIZE, GameConfig.TILE_SIZE / 2, GameConfig.TILE_SIZE / 2, 0, true, 0);
                 this.world.addBodyB(tileBody);
             }
         }
-        this.app.stage.addChild(this.tilemap);
+        this.addChild(this.tilemap);
     }
 
     getTileSize() {
-        return this.tileSize;
+        return GameConfig.TILE_SIZE;
     }
 
     Init() {
-        this.tileTextures = [];
         this.SetBackground();
         this.DrawTileMap();
-    }
-
-    update(delta: number) {
-        this.world.update(delta);
     }
 }

@@ -28,7 +28,7 @@
   "meta": {
     "app": "http://github.com/odrick/free-tex-packer-core",
     "version": "0.3.4",
-    "image": "background_pack-result.png",
+    "image": "background-pack-result.png",
     "format": "RGBA8888",
     "size": {
       "w": 1000,

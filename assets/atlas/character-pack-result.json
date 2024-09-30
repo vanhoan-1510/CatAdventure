@@ -1780,7 +1780,7 @@
   "meta": {
     "app": "http://github.com/odrick/free-tex-packer-core",
     "version": "0.3.4",
-    "image": "character_pack-result.png",
+    "image": "character-pack-result.png",
     "format": "RGBA8888",
     "size": {
       "w": 515,

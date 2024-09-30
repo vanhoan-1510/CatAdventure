@@ -6,15 +6,19 @@
         "assets": [
             {
                 "alias": "background",
-                "src": "./raw_atlas/background/bg.png"
+                "src": "./raw_assets/background/bg.png"
             },
             {
                 "alias": "tilemap",
-                "src": "./atlas/tilemap_pack-result.json"
+                "src": "./atlas/tilemap-pack-result.json"
             },
             {
                 "alias": "character",
-                "src": "./atlas/character_pack-result.json"
+                "src": "./atlas/character-pack-result.json"
+            },
+            {
+                "alias": "uipack",
+                "src": "./atlas/otherassets-pack-result.json"
             }
         ]
       }

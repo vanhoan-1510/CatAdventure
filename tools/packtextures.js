@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { packAsync } = require('free-tex-packer-core');
 
-const imgDir = path.join(__dirname, '../assets/raw_atlas/fishes');
+const rootDir = path.join(__dirname, '../assets/raw_assets');
 const outputDir = path.join(__dirname, '../assets/atlas');
 
 // Đảm bảo thư mục đầu ra tồn tại
@@ -10,26 +10,27 @@ if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
 }
 
-// Đọc tất cả các file PNG trong thư mục ảnh
-const imageFiles = fs.readdirSync(imgDir).filter(file => file.endsWith('.png'));
+// Lấy danh sách các thư mục con trong thư mục gốc
+const subDirs = fs.readdirSync(rootDir).filter(file => fs.statSync(path.join(rootDir, file)).isDirectory());
 
-// Chuyển đổi danh sách file thành định dạng mà packAsync cần
-const images = imageFiles.map(file => ({
-    path: path.relative(__dirname, path.join(imgDir, file)), // Sử dụng đường dẫn tương đối
-    contents: fs.readFileSync(path.join(imgDir, file)),
-    name: path.basename(file, '.png') // Loại bỏ phần mở rộng .png
-}));
+async function packImagesInDir(dir) {
+    // Đọc tất cả các file PNG trong thư mục ảnh
+    const imgDir = path.join(rootDir, dir);
+    const imageFiles = fs.readdirSync(imgDir).filter(file => file.endsWith('.png'));
 
-async function packImages() {
+    // Chuyển đổi danh sách file thành định dạng mà packAsync cần
+    const images = imageFiles.map(file => ({
+        path: path.relative(__dirname, path.join(imgDir, file)), // Sử dụng đường dẫn tương đối
+        contents: fs.readFileSync(path.join(imgDir, file)),
+        name: path.basename(file, '.png') // Loại bỏ phần mở rộng .png
+    }));
+
     try {
         // Gói các hình ảnh thành một atlas
         const files = await packAsync(images, {
             format: 'json', // Định dạng đầu ra
             prefix: ''
         });
-
-        // Lấy tên thư mục
-        const dirName = path.basename(imgDir);
 
         // Chỉnh sửa tên frame trong file JSON
         files.forEach(file => {
@@ -46,24 +47,30 @@ async function packImages() {
                 json.frames = newFrames;
 
                 // Thay đổi giá trị của trường "image" trong phần "meta"
-                json.meta.image = `${dirName}_pack-result.png`;
+                json.meta.image = `${dir}-pack-result.png`;
 
                 // Đổi tên file JSON
-                const newJsonFileName = `${dirName}_pack-result.json`;
+                const newJsonFileName = `${dir}-pack-result.json`;
 
                 // Lưu lại file JSON đã chỉnh sửa với tên mới
                 fs.writeFileSync(path.join(outputDir, newJsonFileName), JSON.stringify(json, null, 2));
             } else {
                 // Đổi tên file bằng cách thêm tiền tố là tên thư mục cộng với tên mặc định
-                const newFileName = `${dirName}_${file.name}`;
+                const newFileName = `${dir}-${file.name}`;
                 fs.writeFileSync(path.join(outputDir, newFileName), file.buffer);
             }
         });
 
-        console.log('Packing and renaming completed successfully.');
+        console.log(`Packing and renaming completed successfully for directory: ${dir}`);
     } catch (error) {
-        console.error('Error packing images:', error);
+        console.error(`Error packing images in directory ${dir}:`, error);
     }
 }
 
-packImages();
+async function packAllDirs() {
+    for (const dir of subDirs) {
+        await packImagesInDir(dir);
+    }
+}
+
+packAllDirs();
