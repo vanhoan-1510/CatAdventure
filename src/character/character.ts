@@ -2,7 +2,6 @@ import { Assets, AnimatedSprite, Texture, Container } from "pixi.js";
 import { Gravity } from "../physics/gravity";
 import { World } from "../physics/world";
 import { Body } from "../physics/body";
-import { Viewport } from "pixi-viewport"; 
 
 export class Character extends Container {
     private idleTextures: Texture[] = [];
@@ -16,7 +15,7 @@ export class Character extends Container {
     private gravity: Gravity;
     private world: World;
 
-    private isruning: boolean = false;
+    private isRunning: boolean = false;
     private isJumping: boolean = false;
 
     constructor(world: World) {
@@ -28,16 +27,16 @@ export class Character extends Container {
     }
 
     Init() {
-        // Khởi tạo vị trí của nhân vật
+        // Initialize character position
         this.position.set(100, 100);
 
-        // Tạo một texture mặc định để khởi tạo characterSprite
+        // Create a default texture to initialize characterSprite
         const defaultTexture = Texture.WHITE;
         this.characterSprite = new AnimatedSprite([defaultTexture]);
         this.characterSprite.width = 53;
         this.characterSprite.height = 78;
 
-        // Khởi tạo characterBody trước khi sử dụng
+        // Initialize characterBody before using it
         this.characterBody = new Body(this.position.x, this.position.y, this.characterSprite.width, this.characterSprite.height, 1, false, 1);
         this.world.addBodyA(this.characterBody);
 
@@ -92,11 +91,13 @@ export class Character extends Container {
         if (!loop) {
             this.characterSprite.onComplete = () => {
                 this.isJumping = false;
-                if (this.isruning) {
+                this.characterBody.velocity.y = 0; // Ensure vertical velocity resets after jumping
+
+                if (this.isRunning) {
                     this.loadAnimation("run", 8).then(() => this.playAnimation(this.runTextures, true));
                 } else {
                     this.loadAnimation("idle", 10).then(() => this.playAnimation(this.idleTextures, true));
-                    this.isruning = false;
+                    this.isRunning = false;
                 }
             };
         }
@@ -107,22 +108,24 @@ export class Character extends Container {
             if ((event.key === 'a' || event.key === 'd'
                 || event.key === 'A' || event.key === 'D'
                 || event.key === 'ArrowLeft' || event.key === 'ArrowRight'
-            ) && !this.isruning && !this.isJumping) {
-                this.isruning = true;
+            ) && !this.isJumping) {
+                if (!this.isRunning) {
+                    this.isRunning = true;
+                    this.loadAnimation("run", 8).then(() => this.playAnimation(this.runTextures, true));
+                }
                 if (event.key === 'a' || event.key === 'A' || event.key === 'ArrowLeft') {
                     this.characterDirection = -1;
+                    this.characterSprite.scale.x = this.characterDirection; // Update character direction visually
                     this.characterBody.velocity.x = -0.3;
                 } else if (event.key === 'd' || event.key === 'D' || event.key === 'ArrowRight') {
                     this.characterDirection = 1;
+                    this.characterSprite.scale.x = this.characterDirection; // Update character direction visually
                     this.characterBody.velocity.x = 0.3;
                 }
-                this.loadAnimation("run", 8).then(() => this.playAnimation(this.runTextures, true));
             } else if (event.key === ' ' && !this.isJumping) {
                 this.isJumping = true;
                 this.loadAnimation("jump", 8).then(() => this.playAnimation(this.jumpTextures, false));
                 this.characterBody.velocity.y = -1;
-            } else {
-                this.isJumping = false;
             }
         });
 
@@ -132,7 +135,7 @@ export class Character extends Container {
                 || event.key === 'ArrowLeft' || event.key === 'ArrowRight'
             ) && !this.isJumping) {
                 this.characterBody.velocity.x = 0;
-                this.isruning = false;
+                this.isRunning = false;
                 this.loadAnimation("idle", 10).then(() => this.playAnimation(this.idleTextures, true));
             }
         });
@@ -146,7 +149,5 @@ export class Character extends Container {
 
         this.position.x = this.characterBody.position.x;
         this.position.y = this.characterBody.position.y;
-
-        // Không cần gọi camera ở đây nếu đã sử dụng viewport
     }
 }
