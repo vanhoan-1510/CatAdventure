@@ -1,7 +1,7 @@
 import { Application, Assets, Graphics, Sprite } from 'pixi.js';
 import { AssetsLoader } from './assets_handle/assetsloader';
 import { GameBoard } from './game_setup/gameboard';
-import { TileMap } from './tile_map/tilemap';
+import { GameConfig } from './game_setup/gameconfig';
 
 
 // Asynchronous IIFE
@@ -10,7 +10,7 @@ import { TileMap } from './tile_map/tilemap';
     // Lấy canvas element từ HTML
     const canvas = <HTMLCanvasElement>document.getElementById('GameCanvas');
     // Cài đặt app với canvas.
-    await app.init({ background: '#cccccc', canvas: canvas, width: 1280, height: 720 });
+    await app.init({ background: '#cccccc', canvas: canvas, width: GameConfig.SCREEN_WIDTH, height: GameConfig.SCREEN_HEIGHT });
 
     // Load assets
     const assetsLoader = new AssetsLoader();

@@ -2,6 +2,7 @@ import { Assets, AnimatedSprite, Texture, Container } from "pixi.js";
 import { Gravity } from "../physics/gravity";
 import { World } from "../physics/world";
 import { Body } from "../physics/body";
+import { GameConfig } from "../game_setup/gameconfig";
 
 export class Character extends Container {
     private idleTextures: Texture[] = [];
@@ -21,29 +22,28 @@ export class Character extends Container {
     constructor(world: World) {
         super();
         this.world = world;
-        this.gravity = new Gravity(3);
+        this.gravity = GameConfig.GRAVITY;
 
         this.Init();
     }
 
     Init() {
         // Initialize character position
-        this.position.set(100, 100);
+        this.position.set(1700, 100);
 
         // Create a default texture to initialize characterSprite
         const defaultTexture = Texture.WHITE;
         this.characterSprite = new AnimatedSprite([defaultTexture]);
-        this.characterSprite.width = 53;
-        this.characterSprite.height = 78;
 
         // Initialize characterBody before using it
-        this.characterBody = new Body(this.position.x, this.position.y, this.characterSprite.width, this.characterSprite.height, 1, false, 1);
+        this.characterBody = new Body(this.position.x, this.position.y, 5, this.characterSprite.height/2, 1, false, 1);
         this.world.addBodyA(this.characterBody);
+        console.log(this.characterBody);
 
         this.loadAnimation("idle", 10).then(() => {
-            this.playAnimation(this.idleTextures, true);
-            this.characterBody.width = this.characterSprite.width;
-            this.characterBody.height = this.characterSprite.height;
+            this.playAnimation(this.idleTextures, true, 0.5);
+            this.characterBody.width = this.characterSprite.width/2;
+            this.characterBody.height = this.characterSprite.height - 15;
         });
 
         this.addKeyboardListeners();
@@ -73,15 +73,15 @@ export class Character extends Container {
         }
     }
 
-    private playAnimation(textures: Texture[], loop: boolean): void {
+    private playAnimation(textures: Texture[], loop: boolean, speed: number): void {
         if (this.characterSprite) {
             this.characterSprite.stop();
             this.removeChild(this.characterSprite);
         }
 
         this.characterSprite = new AnimatedSprite(textures);
-        this.characterSprite.anchor.set(0.35, 0.35);
-        this.characterSprite.animationSpeed = 0.5;
+        this.characterSprite.anchor.set(0.5, 0.5);
+        this.characterSprite.animationSpeed = speed;
         this.characterSprite.loop = loop;
         this.characterSprite.scale.x = this.characterDirection;
 
@@ -91,12 +91,12 @@ export class Character extends Container {
         if (!loop) {
             this.characterSprite.onComplete = () => {
                 this.isJumping = false;
-                this.characterBody.velocity.y = 0; // Ensure vertical velocity resets after jumping
+                this.characterBody.velocity.y = 0;
 
                 if (this.isRunning) {
-                    this.loadAnimation("run", 8).then(() => this.playAnimation(this.runTextures, true));
+                    this.loadAnimation("run", 8).then(() => this.playAnimation(this.runTextures, true, 0.5));
                 } else {
-                    this.loadAnimation("idle", 10).then(() => this.playAnimation(this.idleTextures, true));
+                    this.loadAnimation("idle", 10).then(() => this.playAnimation(this.idleTextures, true, 0.5));
                     this.isRunning = false;
                 }
             };
@@ -108,10 +108,10 @@ export class Character extends Container {
             if ((event.key === 'a' || event.key === 'd'
                 || event.key === 'A' || event.key === 'D'
                 || event.key === 'ArrowLeft' || event.key === 'ArrowRight'
-            ) && !this.isJumping) {
-                if (!this.isRunning) {
+            )) {
+                if (!this.isRunning && !this.isJumping) {
                     this.isRunning = true;
-                    this.loadAnimation("run", 8).then(() => this.playAnimation(this.runTextures, true));
+                    this.loadAnimation("run", 8).then(() => this.playAnimation(this.runTextures, true, 0.5));
                 }
                 if (event.key === 'a' || event.key === 'A' || event.key === 'ArrowLeft') {
                     this.characterDirection = -1;
@@ -124,19 +124,21 @@ export class Character extends Container {
                 }
             } else if (event.key === ' ' && !this.isJumping) {
                 this.isJumping = true;
-                this.loadAnimation("jump", 8).then(() => this.playAnimation(this.jumpTextures, false));
+                this.loadAnimation("jump", 8).then(() => this.playAnimation(this.jumpTextures, false, 0.25));
                 this.characterBody.velocity.y = -1;
             }
         });
 
         window.addEventListener('keyup', (event: KeyboardEvent): void => {
-            if ((event.key === 'a' || event.key === 'd'
+            if (event.key === 'a' || event.key === 'd'
                 || event.key === 'A' || event.key === 'D'
                 || event.key === 'ArrowLeft' || event.key === 'ArrowRight'
-            ) && !this.isJumping) {
+             ) {
+                if(!this.isJumping){
+                    this.loadAnimation("idle", 10).then(() => this.playAnimation(this.idleTextures, true, 0.5));
+                }
                 this.characterBody.velocity.x = 0;
                 this.isRunning = false;
-                this.loadAnimation("idle", 10).then(() => this.playAnimation(this.idleTextures, true));
             }
         });
     }
@@ -149,5 +151,13 @@ export class Character extends Container {
 
         this.position.x = this.characterBody.position.x;
         this.position.y = this.characterBody.position.y;
+
+        if (this.characterBody.position.x < 50) {
+            this.characterBody.position.x = 50;
+        }
+    }
+
+    public getBody(): Body {
+        return this.characterBody;
     }
 }

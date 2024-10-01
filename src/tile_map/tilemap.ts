@@ -6,57 +6,53 @@ import { GameConfig } from '../game_setup/gameconfig';
 
 export class TileMap extends Container{
     private tilemap: CompositeTilemap;
-    public world: World;
-    private bgSprite: TilingSprite; // Thêm biến cho TilingSprite
+    private textures: Texture[] = [];
 
-    // Mảng đại diện cho tilemap
-    public map: number[][]; 
+    public world: World;
+    private bgSprite: TilingSprite;
 
     constructor(world: World){
         super();
-        this.tilemap = new CompositeTilemap();
-        this.map = []; // Khởi tạo mảng tilemap
-        this.world = world; // Khởi tạo world từ tham số truyền vào
+        this.world = world;
         this.Init();
     }
 
     SetBackground() {
         const bgTexture = Assets.get('background');
         this.bgSprite = TilingSprite.from(bgTexture, {
-            width: 90000,
-            height: GameConfig.HEIGHT,
+            width: GameConfig.WORLD_WIDTH
         });
+        this.bgSprite.scale.set(1.2);
         this.addChild(this.bgSprite);
     }
 
     DrawTileMap() {
-        const textures: Texture[] = [];
-        
         for (let i = 1; i <= 18; i++) {
             const texture = Assets.get(`tile${i}`);
-            textures.push(texture);
+            this.textures.push(texture);
         }
 
-        this.map = GameConfig.TILE_MAP; // Gán giá trị từ GameConfig.TILE_MAP cho map
+        this.DrawMapLoop(GameConfig.TILE_MAP1, 0, GameConfig.SCREEN_HEIGHT / 1.5 + GameConfig.TILE_SIZE * 4);
+        this.DrawMapLoop(GameConfig.TILE_MAP2, GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT / 1.5 + GameConfig.TILE_SIZE * 4 );
 
-        for (let y = 0; y < this.map.length; y++) {
-            for (let x = 0; x < this.map[y].length; x++) {
-                const tileType = this.map[y][x];
-                const texture = textures[tileType - 1];
-                const startY = GameConfig.HEIGHT / 2 + GameConfig.TILE_SIZE * 2;
-                this.tilemap.tile(texture, x * GameConfig.TILE_SIZE, startY + y * GameConfig.TILE_SIZE);
-                const tileBody = new Body(x * GameConfig.TILE_SIZE + GameConfig.TILE_SIZE / 2, startY + y * GameConfig.TILE_SIZE + GameConfig.TILE_SIZE, GameConfig.TILE_SIZE / 2, GameConfig.TILE_SIZE / 2, 0, true, 0);
-                this.world.addBodyB(tileBody);
-            }
-        }
+        
         this.addChild(this.tilemap);
     }
 
-    getTileSize() {
-        return GameConfig.TILE_SIZE;
+    DrawMapLoop(map: number[][], startX: number, startY: number) {
+        for (let y = 0; y < map.length; y++) {
+            for (let x = 0; x < map[y].length; x++) {
+                const tileType = map[y][x];
+                const texture = this.textures[tileType - 1];
+                this.tilemap.tile(texture, startX + x * GameConfig.TILE_SIZE, startY + y * GameConfig.TILE_SIZE);
+                const tileBody = new Body(startX + x * GameConfig.TILE_SIZE + GameConfig.TILE_SIZE, startY + y * GameConfig.TILE_SIZE + GameConfig.TILE_SIZE, GameConfig.TILE_SIZE / 2, GameConfig.TILE_SIZE / 2, 0, true, 0);
+                this.world.addBodyB(tileBody);
+            }
+        }
     }
 
     Init() {
+        this.tilemap = new CompositeTilemap();
         this.SetBackground();
         this.DrawTileMap();
     }
