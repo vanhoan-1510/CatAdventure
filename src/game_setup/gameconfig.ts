@@ -5,7 +5,9 @@ export class GameConfig {
     public static readonly WORLD_HEIGHT = 900;
     public static readonly SCREEN_WIDTH = 1600;
     public static readonly SCREEN_HEIGHT = 900;
-    public static readonly GRAVITY: Gravity = new Gravity(2);
+    public static readonly GRAVITY: Gravity = new Gravity(1);
+
+    public static readonly CHARACTER_DEFAULT_POSISION = { x: 100, y: 100 };
 
     public static readonly TILE_SIZE = 32;
     public static readonly TILE_MAP1 = [

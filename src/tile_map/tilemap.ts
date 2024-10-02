@@ -33,7 +33,7 @@ export class TileMap extends Container{
         }
 
         this.DrawMapLoop(GameConfig.TILE_MAP1, 0, GameConfig.SCREEN_HEIGHT / 1.5 + GameConfig.TILE_SIZE * 4);
-        this.DrawMapLoop(GameConfig.TILE_MAP2, GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT / 1.5 + GameConfig.TILE_SIZE * 4 );
+        this.DrawMapLoop(GameConfig.TILE_MAP2, GameConfig.SCREEN_WIDTH - 100, GameConfig.SCREEN_HEIGHT / 1.5 + GameConfig.TILE_SIZE * 4 );
 
         
         this.addChild(this.tilemap);

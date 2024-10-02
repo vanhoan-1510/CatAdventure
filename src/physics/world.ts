@@ -44,6 +44,14 @@ export class World {
                     body.update(subDelta);
                 }
             }
+
+            // Áp dụng lực hấp dẫn và cập nhật vị trí cho bodyB
+            for (const body of this.bodyB) {
+                if (!body.isStatic) {
+                    this.gravity.applyGravity(body, subDelta);
+                    body.update(subDelta);
+                }
+            }
         }
     }
 }
