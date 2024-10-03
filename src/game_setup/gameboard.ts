@@ -110,6 +110,13 @@ export class GameBoard {
         }
     }
 
+    Trap3Resolve() {
+        if (this.character.position.x >= this.trap.sun.position.x - 70
+        ) {
+            this.trap.Trap3Resolve();
+        }
+    }
+
 
     public Update(delta: number) {
         this.character.Update(delta);
@@ -117,6 +124,8 @@ export class GameBoard {
         this.viewport.update(delta);
         this.Trap1Resolve();
         this.Trap2Resolve();
+        this.Trap3Resolve();
+        this.trap.Trap4Resolve(this.character.position, this.character.characterBody);
         if (this.isFootIconShow) {
             this.trap.ShowFootIcon(delta);
         }
@@ -153,8 +162,8 @@ export class GameBoard {
 
         // Reset the character's position and velocity
         this.character.position.set(100, 100);
-        this.character.characterBody.position.x = 100;
-        this.character.characterBody.position.y = 100;
+        this.character.characterBody.position.x = GameConfig.CHARACTER_DEFAULT_POSISION.x;
+        this.character.characterBody.position.y = GameConfig.CHARACTER_DEFAULT_POSISION.y;
         this.character.characterBody.velocity.x = 0;
         this.character.characterBody.velocity.y = 0;
         this.character.isDead = false;
@@ -166,6 +175,10 @@ export class GameBoard {
         this.trap.footIcon.visible = false;
         this.trap.foot.position.set(-500, GameConfig.SCREEN_HEIGHT / 2);
         this.trap.footBody.position.x = -500;
+        this.trap.sun.position = GameConfig.SUN_DEFAULT_POSISION;
+        this.trap.sunBody.position.y = GameConfig.SUN_DEFAULT_POSISION.y;
+        this.trap.sunBody.velocity.y = 0;
+        this.trap.sunBody.isStatic = true;
 
         this.viewport.moveCenter(this.character.x, this.character.y);
         this.viewport.follow(this.character);

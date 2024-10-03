@@ -45,7 +45,8 @@ export class TileMap extends Container{
                 const tileType = map[y][x];
                 const texture = this.textures[tileType - 1];
                 this.tilemap.tile(texture, startX + x * GameConfig.TILE_SIZE, startY + y * GameConfig.TILE_SIZE);
-                const tileBody = new Body(startX + x * GameConfig.TILE_SIZE + GameConfig.TILE_SIZE, startY + y * GameConfig.TILE_SIZE + GameConfig.TILE_SIZE, GameConfig.TILE_SIZE / 2, GameConfig.TILE_SIZE / 2, 0, true, 0);
+                const tileBody = new Body(startX + x * GameConfig.TILE_SIZE + GameConfig.TILE_SIZE, startY + y * GameConfig.TILE_SIZE + GameConfig.TILE_SIZE, 
+                    GameConfig.TILE_SIZE / 2, GameConfig.TILE_SIZE / 2, 0, true, 0, 'ground');
                 this.world.addBodyB(tileBody);
             }
         }

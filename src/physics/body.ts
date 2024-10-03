@@ -6,8 +6,9 @@ export class Body {
     public height: number;
     public isStatic: boolean;
     public restitution: number;
+    public type: string;
 
-    constructor(x: number, y: number, width: number, height: number, mass: number, isStatic: boolean, restitution: number) {
+    constructor(x: number, y: number, width: number, height: number, mass: number, isStatic: boolean, restitution: number, type: string) {
         this.position = { x, y };
         this.velocity = { x: 0, y: 0 };
         this.mass = mass;
@@ -15,6 +16,7 @@ export class Body {
         this.height = height;
         this.isStatic = isStatic;
         this.restitution = restitution;
+        this.type = type;
     }
 
     public update(deltaTime: number) {

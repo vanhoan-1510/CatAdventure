@@ -30,14 +30,15 @@ export class Character extends Container {
     }
 
     Init() {
-        this.position.set(1700, 100);
+        this.position = GameConfig.CHARACTER_DEFAULT_POSISION;
 
         const defaultTexture = Texture.WHITE;
         this.characterSprite = new AnimatedSprite([defaultTexture]);
         this.characterSprite.anchor.set(0.5, 0.5);
         this.addChild(this.characterSprite);
+        
 
-        this.characterBody = new Body(this.position.x, this.position.y, 5, this.characterSprite.height / 2, 1, false, 1);
+        this.characterBody = new Body(this.position.x, this.position.y, 5, this.characterSprite.height / 2, 1, false, 1, "character");
         this.world.addBodyA(this.characterBody);
 
         this.preloadAnimations().then(() => {
@@ -95,7 +96,7 @@ export class Character extends Container {
             if (event.key === 'a' || event.key === 'A' || event.key === 'ArrowLeft') {
                 this.characterDirection = -1;
                 this.characterSprite.scale.x = this.characterDirection;
-                this.characterBody.velocity.x = -0.3;
+                this.characterBody.velocity.x = -0.2;
                 if (!this.isRunning && !this.isJumping) {
                     this.isRunning = true;
                     this.playAnimation("run", true, 0.5);
@@ -103,7 +104,7 @@ export class Character extends Container {
             } else if (event.key === 'd' || event.key === 'D' || event.key === 'ArrowRight') {
                 this.characterDirection = 1;
                 this.characterSprite.scale.x = this.characterDirection;
-                this.characterBody.velocity.x = 0.3;
+                this.characterBody.velocity.x = 0.2;
                 if (!this.isRunning && !this.isJumping) {
                     this.isRunning = true;
                     this.playAnimation("run", true, 0.5);
@@ -111,7 +112,7 @@ export class Character extends Container {
             } else if (event.key === ' ' && !this.isJumping) {
                 this.isJumping = true;
                 this.playAnimation("jump", false, 0.25);
-                this.characterBody.velocity.y = -0.7; // Adjust jump velocity as needed
+                this.characterBody.velocity.y = -0.7;
             }
         });
 
