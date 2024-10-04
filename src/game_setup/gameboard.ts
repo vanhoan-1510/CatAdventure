@@ -6,6 +6,7 @@ import { Trap } from '../trap/trapsetup';
 import { Viewport } from "pixi-viewport";
 import { GameConfig } from "./gameconfig";
 import { EventHandle } from "../eventhandle/eventhandle";
+import { Collision } from '../physics/collision';
 
 export class GameBoard {
     private app: Application;
@@ -15,6 +16,7 @@ export class GameBoard {
     private character: Character;
     private tileMap: TileMap; 
     private world: World;
+    private collision: Collision;
     private trap: Trap;
     private isTrap1Activated: boolean = false;
     private isFootIconShow: boolean = false;
@@ -55,6 +57,8 @@ export class GameBoard {
         this.gameContainer.addChild(this.tileMapContainer);
         this.gameContainer.addChild(this.characterContainer);
         this.gameContainer.addChild(this.trap);
+
+
 
         // Initialize and set up the viewport
         this.viewport = new Viewport({
@@ -125,7 +129,8 @@ export class GameBoard {
         this.Trap1Resolve();
         this.Trap2Resolve();
         this.Trap3Resolve();
-        this.trap.Trap4Resolve(this.character.position, this.character.characterBody);
+        this.trap.Trap4Resolve(this.character.position);
+        this.trap.Trap5Resolve(this.character.position);
         if (this.isFootIconShow) {
             this.trap.ShowFootIcon(delta);
         }
@@ -150,13 +155,21 @@ export class GameBoard {
             this.character.characterBody.position.x = this.character.x;
             this.character.characterBody.velocity.x = 0;
         }
+
+        if (this.character.position.x > 2850) {
+            this.viewport.clamp({
+                right: GameConfig.WORLD_WIDTH,
+                top: -170,
+                bottom: GameConfig.WORLD_HEIGHT -170,
+            }); 
+        }
     }
 
     ResetGame(){
         this.isTrap1Activated = false;
-
         this.isFootIconShow = false;
         this.isFootTrapActivated = false;
+        Collision.hasEmittedDead = false;
 
         this.farthestPointReached = 0;
 
@@ -170,15 +183,7 @@ export class GameBoard {
         this.character.GetIdleAnimation();
 
         // Reset the traps
-        this.trap.questionBlock.visible = false;
-        this.trap.footIcon.position.set(1840, GameConfig.SCREEN_HEIGHT / 2 + 100);
-        this.trap.footIcon.visible = false;
-        this.trap.foot.position.set(-500, GameConfig.SCREEN_HEIGHT / 2);
-        this.trap.footBody.position.x = -500;
-        this.trap.sun.position = GameConfig.SUN_DEFAULT_POSISION;
-        this.trap.sunBody.position.y = GameConfig.SUN_DEFAULT_POSISION.y;
-        this.trap.sunBody.velocity.y = 0;
-        this.trap.sunBody.isStatic = true;
+        this.trap.reset();
 
         this.viewport.moveCenter(this.character.x, this.character.y);
         this.viewport.follow(this.character);

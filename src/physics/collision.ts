@@ -2,7 +2,7 @@ import { EventHandle } from "../eventhandle/eventhandle";
 import { Body } from "./body";
 
 export class Collision {
-    private static hasEmittedDead: boolean = false;
+    public static hasEmittedDead: boolean = false;
 
     static checkCollision(bodyA: Body, bodyB: Body): boolean {
         // Check if bodyA's AABB overlaps with bodyB's AABB
@@ -62,9 +62,8 @@ export class Collision {
             // Emit 'Dead' event only once during continuous collisions with a trap
             if (bodyB.type === 'trap' && !this.hasEmittedDead) {
                 EventHandle.emit('Dead');
-                this.hasEmittedDead = true; // Set flag to prevent multiple emissions
-            }
-
+                this.hasEmittedDead = true;
+            } 
         } else {
             // Reset the event flag when no collision is detected
             this.hasEmittedDead = false;
