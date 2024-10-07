@@ -172,6 +172,13 @@ export class Character extends Container {
         if (this.characterBody.position.x < 50) {
             this.characterBody.position.x = 50;
         }
+
+        if(this.characterBody.position.y > 2000) {
+            this.Dead();
+            this.characterBody.position.x = 5400;
+        }
+
+        // console.log(this.position.x, this.position.y);
     }
 
     public GetIdleAnimation(): AnimatedSprite {

@@ -3,6 +3,7 @@ import { GameConfig } from "../game_setup/gameconfig";
 import { World } from "../physics/world";
 import { Body } from "../physics/body";
 import { Gravity } from "../physics/gravity";
+import { EventHandle } from "../eventhandle/eventhandle";
 
 export class Trap extends Container {
     private world: World;
@@ -16,6 +17,9 @@ export class Trap extends Container {
     public sunTexture: Texture;
     public tubeTexture: Texture;
     public spikeTexture: Texture;
+    public longSpikeTexture: Texture;
+    public mushroomTexture: Texture[];
+    public spikeAnimTexture: Texture[];
 
     public footIcon: Sprite;
     public foot: Sprite;
@@ -24,6 +28,11 @@ export class Trap extends Container {
     public spike1: Sprite[];
     public spike2: Sprite[];
     public wallTrap: Sprite[];
+    public longSpike: Sprite;
+    public mushroom1: AnimatedSprite;
+    public mushroom2: AnimatedSprite;
+    public mushroomRoad: AnimatedSprite[];
+    public spikeAnim: AnimatedSprite[];
 
     public blockBody: Body;
     public footBody: Body;
@@ -44,6 +53,9 @@ export class Trap extends Container {
             this._Trap3();
             this._Trap4();
             this._Trap5();
+            this._Trap6();
+            this._Trap7();
+            this.MushRoomRoad();
         });
     }
 
@@ -53,6 +65,9 @@ export class Trap extends Container {
         this.spike2 = [];
         this.wallTrap = [];
         this.wallTrapBodies = [];
+        this.mushroomTexture = [];
+        this.mushroomRoad = [];
+        this.spikeAnim = [];
 
         for (let i = 1; i <= 4; i++) {
             const texture = await Assets.get(`question${i}`);
@@ -62,12 +77,31 @@ export class Trap extends Container {
                 console.error(`Failed to load texture: question${i}`);
             }
         }
-        this.wallTexture = await Assets.get('wall');
-        this.footIconTexture = await Assets.get('footicon');
-        this.footTexture = await Assets.get('foot');
-        this.sunTexture = await Assets.get('smilesun');
-        this.tubeTexture = await Assets.get('tube');
-        this.spikeTexture = await Assets.get('spike2');
+
+        for (let i = 1; i <= 6; i++) {
+            const texture = await Assets.get(`mushroom_${i}`);
+            if (texture) {
+                this.mushroomTexture.push(texture);
+            } else {
+                console.error(`Failed to load texture: mushroom_${i}`);
+            }
+        }
+
+        // for (let i = 1; i <= 9; i++) {
+        //     const texture = await Assets.get(`spike${i}`);
+        //     if (texture) {
+        //         this.spikeAnimTexture.push(texture);
+        //     } else {
+        //         console.error(`Failed to load texture: spike${i}`);
+        //     }
+        // }
+        this.wallTexture = Assets.get('wall');
+        this.footIconTexture = Assets.get('footicon');
+        this.footTexture = Assets.get('foot');
+        this.sunTexture = Assets.get('smilesun');
+        this.tubeTexture = Assets.get('tube');
+        this.spikeTexture = Assets.get('spike1');
+        this.longSpikeTexture = Assets.get('longspike');
     }
 
     _Trap1() {
@@ -346,6 +380,118 @@ export class Trap extends Container {
         }
     }
 
+    _Trap6(){
+        this.longSpike = new Sprite(this.longSpikeTexture);
+        this.longSpike.position.set(4700, 100);
+        this.longSpike.anchor.set(0.5, 0.5);
+        this.addChild(this.longSpike);
+        this.longSpike.rotation = Math.PI ;
+        const longSpikeBody = new Body(this.longSpike.position.x -200, this.longSpike.position.y + 10, this.longSpike.width* 4, this.longSpike.height, 1, true, 0, 'trap');
+        this.world.addBodyB(longSpikeBody);
+
+        const remindBanner = new Sprite(Assets.get('becarefulfbanner'));
+        remindBanner.position.set(4450, 150);
+        remindBanner.anchor.set(0.5, 0.5);
+        this.addChild(remindBanner);
+
+        if (this.mushroomTexture.length === 6) {
+            for (let i = 1; i <= 6; i++) {
+                this.mushroom1 = new AnimatedSprite(this.mushroomTexture);
+                this.mushroom1.position.set(4390, GameConfig.SCREEN_HEIGHT / 2 + GameConfig.TILE_SIZE * 9);
+                this.mushroom1.anchor.set(0.5, 0.5);
+                this.mushroom1.animationSpeed = 0.5;
+                this.mushroom1.rotation = - Math.PI / 2;
+                this.mushroom1.loop = false;
+                this.mushroom1.visible = false;
+                this.addChild(this.mushroom1);
+            }
+        }
+
+        if (this.mushroomTexture.length === 6) {
+            for (let i = 1; i <= 6; i++) {
+                this.mushroom2 = new AnimatedSprite(this.mushroomTexture);
+                this.mushroom2.position.set(4650, GameConfig.SCREEN_HEIGHT / 2 + GameConfig.TILE_SIZE * 8);
+                this.mushroom2.anchor.set(0.5, 0.5);
+                this.mushroom2.animationSpeed = 0.5;
+                this.mushroom2.loop = false;
+                this.mushroom2.visible = false;
+                this.addChild(this.mushroom2);
+            }
+        }
+    }
+
+    Trap6Resolve(characterPosition: { x: number, y: number }, characterBody: Body) {
+
+        if (characterPosition.x >= 4350 && characterPosition.x <= 4450 && characterPosition.y >= GameConfig.SCREEN_HEIGHT/2 + GameConfig.TILE_SIZE * 8) {
+            characterBody.velocity.x = -2;
+        }
+        if (characterPosition.x >= 4600 && characterPosition.x <= 4650 && characterPosition.y >= GameConfig.SCREEN_HEIGHT/2 + GameConfig.TILE_SIZE * 6 ) {
+            characterBody.velocity.y = -1.5;
+            this.mushroom2.visible = true;
+            this.mushroom2.gotoAndStop(0);
+            this.mushroom2.play();
+        }
+    }
+
+    _Trap7(){
+        const tube = new Sprite(Assets.get('shorttube'));
+        tube.position.set(5500, GameConfig.SCREEN_HEIGHT / 2 + 300);
+        tube.scale.set(1.5);
+        tube.anchor.set(0.5, 0.5);
+        const tubeBody1 = new Body(tube.position.x - 20, tube.position.y - 195, tube.width /30, tube.height, 1, true, 0, 'tube');
+        this.world.addBodyB(tubeBody1);
+        const tubeBody2 = new Body(tube.position.x + 70, tube.position.y - 195, tube.width /30, tube.height, 1, true, 0, 'tube');
+        this.world.addBodyB(tubeBody2);
+
+        const tube2 = new Sprite(Assets.get('shorttuberotate'));
+        tube2.position.set(5500, GameConfig.SCREEN_HEIGHT / 2 + 500);
+        tube2.scale.set(1.5);
+        tube2.anchor.set(0.5, 0.5);
+        this.addChild(tube2);
+        this.addChild(tube);
+    }
+
+    Trap7Resolve(characterPosition: { x: number, y: number }, characterBody: Body) {
+        if(characterPosition.x >= 5480 && characterPosition.x <= 5530 && characterPosition.y >= GameConfig.SCREEN_HEIGHT / 2 + 240) {
+            setTimeout(() => {
+                characterBody.position.y = GameConfig.SCREEN_HEIGHT + 50;
+                characterBody.velocity.y += 0.5;
+            }, 500);
+        }
+    }
+
+    MushRoomRoad() {
+        let mushRoomPositions: { x: number, y: number }[] = [];
+        for (let i = 0; i < 20; i++) {
+            mushRoomPositions.push({
+                x: 5580 + 49 * i,
+                y: GameConfig.SCREEN_HEIGHT / 2 + GameConfig.TILE_SIZE * 8
+            });
+        }
+    
+        mushRoomPositions.forEach(position => {
+            const mushroom = new AnimatedSprite(this.mushroomTexture);
+            mushroom.position.set(position.x, position.y);
+            mushroom.anchor.set(0.5, 0.5);
+            mushroom.animationSpeed = 0.5;
+            mushroom.loop = false;
+            mushroom.play();
+            this.mushroomRoad.push(mushroom);
+    
+            this.addChild(mushroom);
+        });
+    }
+
+    MushRoomRoadBounce(characterPosition: { x: number, y: number }, characterBody: Body) {
+        for(let i = 0; i < this.mushroomRoad.length; i++) {
+            if(characterPosition.x >= 5550 + 49 * i && characterPosition.x < 5550 + 49 * (i+1) && characterPosition.y >= GameConfig.SCREEN_HEIGHT/2 + GameConfig.TILE_SIZE * 6) {
+                characterBody.velocity.y = -0.7;
+                this.mushroomRoad[i].gotoAndStop(0);
+                this.mushroomRoad[i].play();
+            }
+        }
+    }
+
     public update(delta: number) {
         this.gravity.applyGravity(this.sunBody, delta);
         this.sun.position.x = this.sunBody.position.x;
@@ -353,7 +499,7 @@ export class Trap extends Container {
         if(this.sunBody.position.y > GameConfig.SCREEN_HEIGHT + 100) {
             this.sunBody.position.y = GameConfig.SCREEN_HEIGHT + 100;
             this.sunBody.velocity.y = 0;
-            this.sunBody.isStatic = true; 
+            this.sunBody.isStatic = true;
         }
 
         this.world.update(delta);
@@ -378,5 +524,7 @@ export class Trap extends Container {
         for (let i = 0; i < this.wallTrap.length; i++) {
             this.wallTrap[i].position.x = 3560 + i * 40;
         }
+        this.mushroom1.visible = false;
+        this.mushroom2.visible = false;
     }
 }

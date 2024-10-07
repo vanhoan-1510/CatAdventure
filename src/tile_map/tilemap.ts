@@ -1,4 +1,4 @@
-import { Assets, Texture, TilingSprite, Point, Container } from 'pixi.js';
+import { Assets, Texture, TilingSprite, Point, Container, Sprite } from 'pixi.js';
 import { CompositeTilemap } from '@pixi/tilemap';
 import { Body } from '../physics/body';
 import { World } from '../physics/world';
@@ -7,9 +7,11 @@ import { GameConfig } from '../game_setup/gameconfig';
 export class TileMap extends Container{
     private tilemap: CompositeTilemap;
     private textures: Texture[] = [];
+    private savePointTexture: Texture;
 
     public world: World;
     private bgSprite: TilingSprite;
+    private savePoint: Sprite;
 
     constructor(world: World){
         super();
@@ -20,9 +22,11 @@ export class TileMap extends Container{
     SetBackground() {
         const bgTexture = Assets.get('background');
         this.bgSprite = TilingSprite.from(bgTexture, {
-            width: GameConfig.WORLD_WIDTH
+            width: GameConfig.WORLD_WIDTH,
+            height: GameConfig.WORLD_HEIGHT
         });
-        this.bgSprite.scale.set(1.2);
+        this.bgSprite.position.y = -800
+        this.bgSprite.scale.set(1);
         this.addChild(this.bgSprite);
     }
 
@@ -34,6 +38,10 @@ export class TileMap extends Container{
 
         this.DrawMapLoop(GameConfig.TILE_MAP1, 0, GameConfig.SCREEN_HEIGHT / 1.5 + GameConfig.TILE_SIZE * 4);
         this.DrawMapLoop(GameConfig.TILE_MAP2, GameConfig.SCREEN_WIDTH - 100, GameConfig.SCREEN_HEIGHT / 1.5 + GameConfig.TILE_SIZE * 4 );
+        this.DrawMapLoop(GameConfig.TILE_MAP3, GameConfig.SCREEN_WIDTH * 3 - 400 , GameConfig.SCREEN_HEIGHT / 1.5 + GameConfig.TILE_SIZE * 4);
+        this.DrawMapLoop(GameConfig.TILE_MAP4, GameConfig.SCREEN_WIDTH * 3 - 585, GameConfig.SCREEN_HEIGHT / 1.5 + GameConfig.TILE_SIZE * 5);
+        this.DrawMapLoop(GameConfig.TILE_MAP5, GameConfig.SCREEN_WIDTH * 4 + 400, GameConfig.SCREEN_HEIGHT / 2);
+        this.DrawMapLoop(GameConfig.TILE_MAP6, GameConfig.SCREEN_WIDTH * 4 + 140, GameConfig.SCREEN_HEIGHT / 2 + GameConfig.TILE_SIZE * 11);
 
         
         this.addChild(this.tilemap);
@@ -53,8 +61,15 @@ export class TileMap extends Container{
     }
 
     Init() {
-        this.tilemap = new CompositeTilemap();
         this.SetBackground();
+
+        this.savePointTexture = Assets.get('savepoint');
+        this.savePoint = Sprite.from(this.savePointTexture);
+        this.savePoint.anchor.set(0.5, 0.5);
+        this.savePoint.position = GameConfig.SAVE_POINT_DEFAULT_POSISION;
+        this.addChild(this.savePoint);
+
+        this.tilemap = new CompositeTilemap();
         this.DrawTileMap();
     }
 }

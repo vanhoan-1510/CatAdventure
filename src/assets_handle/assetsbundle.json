@@ -19,6 +19,14 @@
             {
                 "alias": "uipack",
                 "src": "./atlas/otherassets-pack-result.json"
+            },
+            {
+                "alias": "tutorassets",
+                "src": "./atlas/tutorassets-pack-result.json"
+            },
+            {
+                "alias": "tileobject",
+                "src": "./atlas/tileobject-pack-result.json"
             }
         ]
       }

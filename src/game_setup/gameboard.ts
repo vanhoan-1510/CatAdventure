@@ -21,9 +21,13 @@ export class GameBoard {
     private isTrap1Activated: boolean = false;
     private isFootIconShow: boolean = false;
     private isFootTrapActivated: boolean = false;
+
+    private _SavePoint: { x: number, y: number } = GameConfig.CHARACTER_DEFAULT_POSISION;
     
     private viewport: Viewport;
     private farthestPointReached: number = 0;
+    private targetTop: number = 0;
+    private targetBottom: number = GameConfig.SCREEN_HEIGHT;
 
     constructor(app: Application) {
         this.app = app;
@@ -77,7 +81,7 @@ export class GameBoard {
             left: 0,
             right: GameConfig.WORLD_WIDTH,
             top: 0,
-            bottom: GameConfig.WORLD_HEIGHT,
+            bottom: GameConfig.SCREEN_HEIGHT,
         });
 
         // Set the character in the center of the viewport initially
@@ -131,6 +135,10 @@ export class GameBoard {
         this.Trap3Resolve();
         this.trap.Trap4Resolve(this.character.position);
         this.trap.Trap5Resolve(this.character.position);
+        this.trap.Trap6Resolve(this.character.position, this.character.characterBody);
+        this.trap.Trap7Resolve(this.character.position, this.character.characterBody);
+        this.trap.MushRoomRoadBounce(this.character.position, this.character.characterBody);
+    
         if (this.isFootIconShow) {
             this.trap.ShowFootIcon(delta);
         }
@@ -142,7 +150,16 @@ export class GameBoard {
         if (this.character.x > this.farthestPointReached) {
             this.farthestPointReached = this.character.x;
         }
+
+        if(this.character.position.x > GameConfig.SAVE_POINT_DEFAULT_POSISION.x){
+            this._SavePoint = { x: GameConfig.SAVE_POINT_DEFAULT_POSISION.x, y: 200 };
+        }
     
+        // Handle camera logic in a separate function
+        this.HandleCamera();
+    }
+    
+    private HandleCamera() {
         // Clamp the viewport position to prevent moving left beyond the farthest point reached
         if (this.viewport.left < this.farthestPointReached - this.app.screen.width / 2) {
             this.viewport.left = this.farthestPointReached - this.app.screen.width / 2;
@@ -150,22 +167,48 @@ export class GameBoard {
     
         // Allow the character to move left only if they are not beyond the allowed left boundary
         if (this.character.x < this.farthestPointReached - this.app.screen.width / 2) {
-            // Stop the character's velocity and update the body position
             this.character.x = this.farthestPointReached - this.app.screen.width / 2;
             this.character.characterBody.position.x = this.character.x;
             this.character.characterBody.velocity.x = 0;
         }
-
-        if (this.character.position.x > 2850) {
-            this.viewport.clamp({
-                right: GameConfig.WORLD_WIDTH,
-                top: -170,
-                bottom: GameConfig.WORLD_HEIGHT -170,
-            }); 
+    
+        if (this.character.position.x > 2850 && this.character.position.x <= 3850) {
+            this.targetTop = -170;
+            this.targetBottom = GameConfig.SCREEN_HEIGHT - 170;
         }
+
+        if (this.character.position.x > 3875 && this.character.position.x <= 5300) {
+            this.targetTop = 0;
+            this.targetBottom = GameConfig.SCREEN_HEIGHT;
+        }
+    
+        if (this.character.position.x >= 5480 && this.character.position.x <= 5530 && this.character.position.y >= GameConfig.SCREEN_HEIGHT / 2 + 240) {
+            this.targetTop = 500;
+            this.targetBottom = GameConfig.SCREEN_HEIGHT + 500;
+        }
+
+        const lerpFactor = 0.05;
+        const currentTop = this.viewport.top;
+        const currentBottom = this.viewport.bottom;
+    
+        const newTop = currentTop + (this.targetTop - currentTop) * lerpFactor;
+        const newBottom = currentBottom + (this.targetBottom - currentBottom) * lerpFactor;
+    
+        this.viewport.clamp({
+            left: 0,
+            right: GameConfig.WORLD_WIDTH,
+            top: newTop,
+            bottom: newBottom,
+        });
     }
+    
+    
+    
 
     ResetGame(){
+        this.character.characterBody.velocity.x = 0;
+        this.character.characterBody.velocity.y = 0;
+        
         this.isTrap1Activated = false;
         this.isFootIconShow = false;
         this.isFootTrapActivated = false;
@@ -174,11 +217,8 @@ export class GameBoard {
         this.farthestPointReached = 0;
 
         // Reset the character's position and velocity
-        this.character.position.set(100, 100);
-        this.character.characterBody.position.x = GameConfig.CHARACTER_DEFAULT_POSISION.x;
-        this.character.characterBody.position.y = GameConfig.CHARACTER_DEFAULT_POSISION.y;
-        this.character.characterBody.velocity.x = 0;
-        this.character.characterBody.velocity.y = 0;
+        this.character.characterBody.position.x = this._SavePoint.x;
+        this.character.characterBody.position.y = this._SavePoint.y;
         this.character.isDead = false;
         this.character.GetIdleAnimation();
 

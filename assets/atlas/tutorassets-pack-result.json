@@ -48,38 +48,14 @@
         "y": 0.5
       }
     },
-    "save": {
-      "frame": {
-        "x": 686,
-        "y": 1300,
-        "w": 686,
-        "h": 687
-      },
-      "rotated": false,
-      "trimmed": false,
-      "spriteSourceSize": {
-        "x": 0,
-        "y": 0,
-        "w": 686,
-        "h": 687
-      },
-      "sourceSize": {
-        "w": 686,
-        "h": 687
-      },
-      "pivot": {
-        "x": 0.5,
-        "y": 0.5
-      }
-    },
     "message": {
       "frame": {
-        "x": 1372,
+        "x": 686,
         "y": 1300,
         "w": 658,
         "h": 368
       },
-      "rotated": false,
+      "rotated": true,
       "trimmed": false,
       "spriteSourceSize": {
         "x": 0,
@@ -98,22 +74,46 @@
     },
     "becarefulfbanner": {
       "frame": {
-        "x": 1433,
-        "y": 0,
-        "w": 686,
-        "h": 300
+        "x": 686,
+        "y": 1958,
+        "w": 172,
+        "h": 75
       },
-      "rotated": true,
+      "rotated": false,
       "trimmed": false,
       "spriteSourceSize": {
         "x": 0,
         "y": 0,
-        "w": 686,
-        "h": 300
+        "w": 172,
+        "h": 75
       },
       "sourceSize": {
-        "w": 686,
-        "h": 300
+        "w": 172,
+        "h": 75
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "savepoint": {
+      "frame": {
+        "x": 1433,
+        "y": 0,
+        "w": 110,
+        "h": 110
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 110
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 110
       },
       "pivot": {
         "x": 0.5,
@@ -124,11 +124,11 @@
   "meta": {
     "app": "http://github.com/odrick/free-tex-packer-core",
     "version": "0.3.4",
-    "image": "tutorassets-pack-result.png",
+    "image": "tutorassets-pack-result-0.png",
     "format": "RGBA8888",
     "size": {
-      "w": 2030,
-      "h": 1987
+      "w": 1543,
+      "h": 2033
     },
     "scale": 1
   }
