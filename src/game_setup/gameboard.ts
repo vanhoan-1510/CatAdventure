@@ -16,7 +16,6 @@ export class GameBoard {
     private character: Character;
     private tileMap: TileMap; 
     private world: World;
-    private collision: Collision;
     private trap: Trap;
     private isTrap1Activated: boolean = false;
     private isFootIconShow: boolean = false;
@@ -138,6 +137,10 @@ export class GameBoard {
         this.trap.Trap6Resolve(this.character.position, this.character.characterBody);
         this.trap.Trap7Resolve(this.character.position, this.character.characterBody);
         this.trap.MushRoomRoadBounce(this.character.position, this.character.characterBody);
+        this.trap.SpikeRoadBounce(this.character.position, this.character.characterBody);
+        this.trap.Trap8Resolve(this.character.position);
+        this.trap.Trap9Resolve(this.character.position);
+        this.trap.Trap10Resolve(this.character.position);
     
         if (this.isFootIconShow) {
             this.trap.ShowFootIcon(delta);
@@ -201,8 +204,6 @@ export class GameBoard {
             bottom: newBottom,
         });
     }
-    
-    
     
 
     ResetGame(){

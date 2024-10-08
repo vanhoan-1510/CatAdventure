@@ -9,7 +9,6 @@ export class Trap extends Container {
     private world: World;
     private gravity: Gravity;
 
-    public questionBlock: AnimatedSprite;
     public blockTextures: Texture[];
     public wallTexture: Texture;
     public footIconTexture: Texture;
@@ -20,7 +19,21 @@ export class Trap extends Container {
     public longSpikeTexture: Texture;
     public mushroomTexture: Texture[];
     public spikeAnimTexture: Texture[];
+    public leftGroundTexture: Texture;
+    public centerGroundTexture: Texture;
+    public rightGroundTexture: Texture;
+    public arrowTexture: Texture;
+    public bBlockTexture: Texture;
+    public yBlockTexture: Texture;
+    public eBlockTexture: Texture;
+    public bombTexture: Texture[];
+    public explosionTexture: Texture[];
+    public enemyTexture: Texture;
+    public deadMessageTexture: Texture;
+    public groundSplitTexture: Texture;
+    public woodTexture: Texture;
 
+    public questionBlock: AnimatedSprite;
     public footIcon: Sprite;
     public foot: Sprite;
     public sun: Sprite;
@@ -33,15 +46,34 @@ export class Trap extends Container {
     public mushroom2: AnimatedSprite;
     public mushroomRoad: AnimatedSprite[];
     public spikeAnim: AnimatedSprite[];
+    public centerGround: Sprite;
+    public leftGround: Sprite;
+    public rightGround: Sprite;
+    public bBlock: Sprite;
+    public yBlock: Sprite;
+    public eBlock: Sprite;
+    public bomb: AnimatedSprite;
+    public explosion: AnimatedSprite;
+    public enemy: Sprite;
+    public deadMessage: Sprite;
+    public groundSplit: Sprite;
+    public wood: Sprite;
+
 
     public blockBody: Body;
     public footBody: Body;
     public sunBody: Body;
     public wallTrapBodies: Body[];
+    public leftGroundBody: Body;
+    public rightGroundBody: Body;
+    public bBlockBody: Body;
+    public enemyBody: Body;
+    public groundSplitBody: Body;
 
     private footPositionX: number;
 
     public isSunTrapEnabled: boolean = false;
+    private bombActivated: boolean = false;
 
     constructor(world: World) {
         super();
@@ -56,6 +88,10 @@ export class Trap extends Container {
             this._Trap6();
             this._Trap7();
             this.MushRoomRoad();
+            this.SpikeRoad();
+            this._Trap8();
+            this._Trap9();
+            this._Trap10();
         });
     }
 
@@ -67,7 +103,10 @@ export class Trap extends Container {
         this.wallTrapBodies = [];
         this.mushroomTexture = [];
         this.mushroomRoad = [];
+        this.spikeAnimTexture = [];
         this.spikeAnim = [];
+        this.bombTexture = [];
+        this.explosionTexture = [];
 
         for (let i = 1; i <= 4; i++) {
             const texture = await Assets.get(`question${i}`);
@@ -87,14 +126,33 @@ export class Trap extends Container {
             }
         }
 
-        // for (let i = 1; i <= 9; i++) {
-        //     const texture = await Assets.get(`spike${i}`);
-        //     if (texture) {
-        //         this.spikeAnimTexture.push(texture);
-        //     } else {
-        //         console.error(`Failed to load texture: spike${i}`);
-        //     }
-        // }
+        for(let i = 1; i <= 7; i++) {
+            const texture = await Assets.get(`spike${i}`);
+            if(texture) {
+                this.spikeAnimTexture.push(texture);
+            } else {
+                console.error(`Failed to load texture: spike${i}`);
+            }
+        }
+
+        for (let i = 1; i <= 30; i++) {
+            const texture = await Assets.get(`bomb${i}`);
+            if (texture) {
+                this.bombTexture.push(texture);
+            } else {
+                console.error(`Failed to load texture: bomb${i}`);
+            }
+        }
+
+        for (let i = 1; i <= 25; i++) {
+            const texture = await Assets.get(`explosion${i}`);
+            if (texture) {
+                this.explosionTexture.push(texture);
+            } else {
+                console.error(`Failed to load texture: explosion${i}`);
+            }
+        }
+
         this.wallTexture = Assets.get('wall');
         this.footIconTexture = Assets.get('footicon');
         this.footTexture = Assets.get('foot');
@@ -102,6 +160,16 @@ export class Trap extends Container {
         this.tubeTexture = Assets.get('tube');
         this.spikeTexture = Assets.get('spike1');
         this.longSpikeTexture = Assets.get('longspike');
+        this.leftGroundTexture = Assets.get('leftground');
+        this.centerGroundTexture = Assets.get('centerground');
+        this.rightGroundTexture = Assets.get('rightground');
+        this.arrowTexture = Assets.get('arrow');
+        this.bBlockTexture = Assets.get('bblock');
+        this.yBlockTexture = Assets.get('yblock');
+        this.eBlockTexture = Assets.get('eblock');
+        this.enemyTexture = Assets.get('enemy');
+        this.deadMessage = Assets.get('deadmessage');
+        this.groundSplitTexture = Assets.get('groundsplit');
     }
 
     _Trap1() {
@@ -464,7 +532,7 @@ export class Trap extends Container {
         let mushRoomPositions: { x: number, y: number }[] = [];
         for (let i = 0; i < 20; i++) {
             mushRoomPositions.push({
-                x: 5580 + 49 * i,
+                x: 5580 + GameConfig.MUSHROOM_SIZE * i,
                 y: GameConfig.SCREEN_HEIGHT / 2 + GameConfig.TILE_SIZE * 8
             });
         }
@@ -473,9 +541,8 @@ export class Trap extends Container {
             const mushroom = new AnimatedSprite(this.mushroomTexture);
             mushroom.position.set(position.x, position.y);
             mushroom.anchor.set(0.5, 0.5);
-            mushroom.animationSpeed = 0.5;
+            mushroom.animationSpeed = 1;
             mushroom.loop = false;
-            mushroom.play();
             this.mushroomRoad.push(mushroom);
     
             this.addChild(mushroom);
@@ -484,11 +551,210 @@ export class Trap extends Container {
 
     MushRoomRoadBounce(characterPosition: { x: number, y: number }, characterBody: Body) {
         for(let i = 0; i < this.mushroomRoad.length; i++) {
-            if(characterPosition.x >= 5550 + 49 * i && characterPosition.x < 5550 + 49 * (i+1) && characterPosition.y >= GameConfig.SCREEN_HEIGHT/2 + GameConfig.TILE_SIZE * 6) {
+            if(characterPosition.x >= 5550 + GameConfig.MUSHROOM_SIZE * i && characterPosition.x < 5550 + GameConfig.MUSHROOM_SIZE
+                 * (i+1) && characterPosition.y >= GameConfig.SCREEN_HEIGHT/2 + GameConfig.TILE_SIZE * 6) {
                 characterBody.velocity.y = -0.7;
                 this.mushroomRoad[i].gotoAndStop(0);
                 this.mushroomRoad[i].play();
             }
+        }
+    }
+
+    SpikeRoad(){
+        let spikePositions: { x: number, y: number }[] = [];
+        for (let i = 0; i < 25; i++) {
+            spikePositions.push({
+                x: 6575 + GameConfig.SPIKE_WIDTH * i,
+                y: GameConfig.SCREEN_HEIGHT / 2 + GameConfig.TILE_SIZE * 10 + 10
+            });
+        }
+
+        spikePositions.forEach(position => {
+            const spike = new AnimatedSprite(this.spikeAnimTexture);
+            spike.position.set(position.x, position.y);
+            spike.anchor.set(0.5, 0.5);
+            spike.animationSpeed = 1;
+            spike.loop = false;
+            this.spikeAnim.push(spike);
+
+            this.addChild(spike);
+        });
+    }
+
+    SpikeRoadBounce(characterPosition: { x: number, y: number }, characterBody: Body) {
+        for(let i = 0; i < this.spikeAnim.length; i++) {
+            if(characterPosition.x >= 6550 + GameConfig.SPIKE_WIDTH * i && characterPosition.x <  6580 + GameConfig.SPIKE_WIDTH * (i+1) 
+                && characterPosition.y >= GameConfig.SCREEN_HEIGHT/2 + GameConfig.TILE_SIZE * 8) {
+                characterBody.velocity.y = -0.5;
+                this.spikeAnim[i].gotoAndStop(0);
+                this.spikeAnim[i].play();
+            }
+        }
+    }
+
+    _Trap8() {
+        const arrow = new Sprite(this.arrowTexture);
+        arrow.position.set(6600, GameConfig.SCREEN_HEIGHT / 2 +40);
+        arrow.anchor.set(0.5, 0.5);
+        this.addChild(arrow);
+
+
+        this.centerGround = new Sprite(this.rightGroundTexture);
+        this.centerGround.position.set(6850, GameConfig.SCREEN_HEIGHT / 2 + GameConfig.TILE_SIZE * 2);
+        // centerGround.anchor.set(0.5, 0.5);
+        const centerGroundBody = new Body(this.centerGround.position.x - 100, this.centerGround.position.y + GameConfig.TILE_SIZE, this.centerGround.width * 2, this.centerGround.height / 2, 1, true, 0, 'ground');
+        this.world.addBodyB(centerGroundBody);
+        this.addChild(this.centerGround);
+
+        this.leftGround = new Sprite(this.rightGroundTexture);
+        this.leftGround.position.set(6850, GameConfig.SCREEN_HEIGHT / 2 + GameConfig.TILE_SIZE * 2);
+        this.leftGround.anchor.set(1, 0);
+        this.leftGroundBody = new Body(this.leftGround.position.x, this.leftGround.position.y - 100, this.leftGround.height, this.leftGround.width, 1, true, 0, 'ground');
+        // this.leftGround.rotation = Math.PI / 2;
+        this.addChild(this.leftGround);
+
+        this.rightGround = new Sprite(this.rightGroundTexture);
+        this.rightGround.position.set(this.centerGround.position.x + this.centerGround.width, GameConfig.SCREEN_HEIGHT / 2 + GameConfig.TILE_SIZE * 2);
+        this.rightGroundBody = new Body(this.rightGround.position.x + 20, this.rightGround.position.y - 100, this.rightGround.height, this.rightGround.width, 1, true, 0, 'ground');
+        this.rightGround.anchor.set(0, 0);
+        // this.rightGround.rotation = - Math.PI / 2;
+        const rightGroundBody = new Body(this.rightGround.position.x, this.rightGround.position.y + GameConfig.TILE_SIZE, this.rightGround.width, this.rightGround.height / 2, 1, true, 0, 'ground');
+        this.world.addBodyB(rightGroundBody);
+        this.addChild(this.rightGround);
+
+        this.bBlock = new Sprite(this.bBlockTexture);
+        this.bBlock.position.set(6880, GameConfig.SCREEN_HEIGHT / 2 - 100);
+        this.bBlock.anchor.set(0.5, 0.5);
+        this.bBlock.visible = false;
+        const bBlockBody = new Body(this.bBlock.position.x, this.bBlock.position.y + 10, this.bBlock.width, this.bBlock.height, 1, true, 0, 'block');
+        this.world.addBodyB(bBlockBody);
+        this.addChild(this.bBlock);
+
+        this.yBlock = new Sprite(this.yBlockTexture);
+        this.yBlock.position.set(6880 + 40, GameConfig.SCREEN_HEIGHT / 2 - 100);
+        this.yBlock.anchor.set(0.5, 0.5);
+        this.yBlock.visible = false;
+        const yBlockBody = new Body(this.yBlock.position.x, this.yBlock.position.y + 10, this.yBlock.width, this.yBlock.height, 1, true, 0, 'block');
+        this.world.addBodyB(yBlockBody);
+        this.addChild(this.yBlock);
+
+        this.eBlock = new Sprite(this.eBlockTexture);
+        this.eBlock.position.set(6880 + 80, GameConfig.SCREEN_HEIGHT / 2 - 100);
+        this.eBlock.anchor.set(0.5, 0.5);
+        this.eBlock.visible = false;
+        const eBlockBody = new Body(this.eBlock.position.x, this.eBlock.position.y + 10, this.eBlock.width, this.eBlock.height, 1, true, 0, 'block');
+        this.world.addBodyB(eBlockBody);
+        this.addChild(this.eBlock);
+
+        this.bomb = new AnimatedSprite(this.bombTexture);
+        this.bomb.position.set(6800 + 120, GameConfig.SCREEN_HEIGHT / 2 + 10);
+        this.bomb.anchor.set(0.5, 0.5);
+        this.bomb.animationSpeed = 0.3;
+        this.bomb.loop = false;
+        this.bomb.visible = false;
+        this.addChild(this.bomb);
+
+        this.explosion = new AnimatedSprite(this.explosionTexture);
+        this.explosion.position.set(6800 + 120, GameConfig.SCREEN_HEIGHT / 2 + 10);
+        this.explosion.anchor.set(0.5, 0.5);
+        this.explosion.animationSpeed = 0.3;
+        this.explosion.scale.set(4);
+        this.explosion.loop = false;
+        this.explosion.visible = false;
+        this.addChild(this.explosion);
+    }
+
+    Trap8Resolve(characterPosition: { x: number, y: number }) {
+        if (characterPosition.x >= this.centerGround.position.x && characterPosition.x <= this.centerGround.position.x + this.centerGround.width
+            && characterPosition.y >= GameConfig.SCREEN_HEIGHT / 2 && characterPosition.y <= GameConfig.SCREEN_HEIGHT / 2 + GameConfig.TILE_SIZE * 2) {
+    
+            if (!this.bombActivated) {
+                this.leftGround.rotation = Math.PI / 2;
+                this.rightGround.rotation = -Math.PI / 2;
+    
+                this.world.addBodyB(this.leftGroundBody);
+                this.world.addBodyB(this.rightGroundBody);
+    
+                this.bomb.visible = true;
+                setTimeout(() => {
+                    this.bomb.play();
+                    this.bombActivated = true;
+                    this.bomb.onComplete = () => {
+                        this.bomb.visible = false;
+                        this.explosion.visible = true;
+                        this.explosion.play();
+                        EventHandle.emit('Dead');
+                    };
+                }, 2000);
+            }
+        }
+
+        if(characterPosition.x >= this.bBlock.position.x - 30 
+            && characterPosition.y >= this.bBlock.position.y - 100 && characterPosition.y <= this.bBlock.position.y + 60) {
+            this.bBlock.visible = true;
+        }
+
+        if(characterPosition.x >= this.yBlock.position.x - 30 
+            && characterPosition.y >= this.yBlock.position.y - 100 && characterPosition.y <= this.yBlock.position.y + 60) {
+            this.yBlock.visible = true;
+        }
+
+        if(characterPosition.x >= this.eBlock.position.x - 30 
+            && characterPosition.y >= this.eBlock.position.y - 100 && characterPosition.y <= this.eBlock.position.y + 60) {
+            this.eBlock.visible = true;
+        }
+    }
+
+    _Trap9(){
+        this.enemy = new Sprite(this.enemyTexture);
+        this.enemy.position = GameConfig.ENEMY_POSITION;
+        this.enemy.anchor.set(0.5, 0.5);
+        this.enemy.scale.set(0.7);
+        this.addChild(this.enemy);
+        this.enemyBody = new Body(this.enemy.position.x, this.enemy.position.y, this.enemy.width, this.enemy.height / 2, 1, true, 0.1, 'trap');
+        this.world.addBodyB(this.enemyBody);
+
+        this.deadMessage = new Sprite(this.deadMessage);
+        this.deadMessage.position.set(8250, GameConfig.SCREEN_HEIGHT / 2 - 40);
+        this.deadMessage.anchor.set(0.5, 0.5);
+        this.deadMessage.scale.set(0.5);
+        this.deadMessage.visible = false;
+        this.addChild(this.deadMessage);
+
+    }
+
+    Trap9Resolve(characterPosition: { x: number, y: number }) {
+        const distanceX = characterPosition.x - this.enemy.position.x;
+        const distanceY = characterPosition.y - this.enemy.position.y;
+        const speed = 0.5;
+        if (Math.abs(distanceX) > 48 && Math.abs(distanceX) < 400 && characterPosition.x < this.enemy.position.x &&characterPosition.y <= GameConfig.SCREEN_HEIGHT / 2 + 100) {
+            this.enemy.position.x += (distanceX / Math.abs(distanceX)) * speed;
+            this.enemyBody.position.x = this.enemy.position.x;
+            this.enemy.position.y += distanceY;
+            this.enemyBody.position.y = this.enemy.position.y;
+        }
+
+        if (Math.abs(distanceX) < 400 && characterPosition.y > GameConfig.SCREEN_HEIGHT / 2 + 100) {
+            this.deadMessage.visible = true;
+        }
+    }
+
+    _Trap10() {
+        this.groundSplit = new Sprite(this.groundSplitTexture);
+        this.groundSplit.position.set(8840, GameConfig.SCREEN_HEIGHT / 2 + GameConfig.TILE_SIZE * 12 - GameConfig.TILE_SIZE/2 );
+        this.groundSplit.anchor.set(0.5, 0.5);
+        this.addChild(this.groundSplit);
+        this.groundSplitBody = new Body(this.groundSplit.position.x - 20, this.groundSplit.position.y - GameConfig.TILE_SIZE * 5 /2, this.groundSplit.width, this.groundSplit.height, 1, true, 0, 'ground');
+        this.world.addBodyB(this.groundSplitBody);
+    }
+
+    Trap10Resolve(characterPosition: { x: number, y: number }) {
+        if (characterPosition.x >= 8780 && characterPosition.x <= 8864){
+            const speed = 1;
+            setTimeout(() => {
+            this.groundSplit.position.x = 8900;
+            this.groundSplitBody.position.x = 8900;
+            }, 2000);
         }
     }
 
@@ -515,6 +781,7 @@ export class Trap extends Container {
         this.sunBody.position.y = GameConfig.SUN_DEFAULT_POSISION.y;
         this.sunBody.velocity.y = 0;
         this.sunBody.isStatic = true;
+        
         for (let i = 0; i < this.spike1.length; i++) {
             this.spike1[i].visible = false;
         }
@@ -526,5 +793,23 @@ export class Trap extends Container {
         }
         this.mushroom1.visible = false;
         this.mushroom2.visible = false;
+    
+        this.leftGround.rotation = 0;
+        this.rightGround.rotation = 0;
+    
+        this.world.removeBodyB(this.leftGroundBody);
+        this.world.removeBodyB(this.rightGroundBody);
+        this.bombActivated = false;
+        this.bomb.visible = false;
+        this.bomb.gotoAndStop(0);
+        this.explosion.visible = false;
+        this.explosion.gotoAndStop(0);
+
+        this.bBlock.visible = false;
+        this.yBlock.visible = false;
+        this.eBlock.visible = false;
+
+        this.enemy.position = GameConfig.ENEMY_POSITION;
+        this.deadMessage.visible = false;
     }
 }

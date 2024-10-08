@@ -21,6 +21,16 @@ export class World {
         this.bodyB.push(body);
     }
 
+    // Hàm để xoá một body khỏi bodyA bằng đối tượng
+    removeBodyA(bodyToRemove: Body) {
+        this.bodyA = this.bodyA.filter(body => body !== bodyToRemove);
+    }
+
+    // Hàm để xoá một body khỏi bodyB bằng đối tượng
+    removeBodyB(bodyToRemove: Body) {
+        this.bodyB = this.bodyB.filter(body => body !== bodyToRemove);
+    }
+
     public update(delta: number) {
         const subSteps = 10;
         const subDelta = delta / subSteps;

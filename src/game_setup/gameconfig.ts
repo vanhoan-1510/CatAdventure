@@ -9,7 +9,7 @@ export class GameConfig {
 
     public static readonly TILE_SIZE = 32;
 
-    public static readonly CHARACTER_DEFAULT_POSISION = { x: 6500, y: 200 };
+    public static readonly CHARACTER_DEFAULT_POSISION = { x: 100, y: 200 };
     public static readonly SAVE_POINT_DEFAULT_POSISION = { x: 5000, y: this.SCREEN_HEIGHT / 2 + this.TILE_SIZE * 7 };
 
     public static readonly TILE_MAP1 = [
@@ -33,14 +33,26 @@ export class GameConfig {
     ];
 
     public static readonly TILE_MAP5 = [
-        [1, ...Array(20).fill(2), 3]
+        [2, ...Array(30).fill(2), 3]
     ];
 
     public static readonly TILE_MAP6 = [
-        ...Array(5).fill([...Array(30).fill(5), 6])
+        ...Array(5).fill([...Array(50).fill(5)])
+    ];
+
+    public static readonly TILE_MAP7 = [
+        [1, ...Array(4).fill(2)]
+    ];
+
+    public static readonly TILE_MAP8 = [
+        [2, ...Array(20).fill(2)],
+        ...Array(6).fill([5, ...Array(20).fill(5)])
     ];
 
 
     //Trap Config
     public static readonly SUN_DEFAULT_POSISION = { x: 2500, y: 100 };
+    public static readonly MUSHROOM_SIZE = 49;
+    public static readonly SPIKE_WIDTH = 64;
+    public static readonly ENEMY_POSITION = {x: 8100, y: this.SCREEN_HEIGHT / 2 + 30}
 }

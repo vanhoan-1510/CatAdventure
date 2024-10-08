@@ -40,8 +40,10 @@ export class TileMap extends Container{
         this.DrawMapLoop(GameConfig.TILE_MAP2, GameConfig.SCREEN_WIDTH - 100, GameConfig.SCREEN_HEIGHT / 1.5 + GameConfig.TILE_SIZE * 4 );
         this.DrawMapLoop(GameConfig.TILE_MAP3, GameConfig.SCREEN_WIDTH * 3 - 400 , GameConfig.SCREEN_HEIGHT / 1.5 + GameConfig.TILE_SIZE * 4);
         this.DrawMapLoop(GameConfig.TILE_MAP4, GameConfig.SCREEN_WIDTH * 3 - 585, GameConfig.SCREEN_HEIGHT / 1.5 + GameConfig.TILE_SIZE * 5);
-        this.DrawMapLoop(GameConfig.TILE_MAP5, GameConfig.SCREEN_WIDTH * 4 + 400, GameConfig.SCREEN_HEIGHT / 2);
+        this.DrawMapLoop(GameConfig.TILE_MAP5, GameConfig.SCREEN_WIDTH * 4 + 700, GameConfig.SCREEN_HEIGHT / 2 + GameConfig.TILE_SIZE * 2);
         this.DrawMapLoop(GameConfig.TILE_MAP6, GameConfig.SCREEN_WIDTH * 4 + 140, GameConfig.SCREEN_HEIGHT / 2 + GameConfig.TILE_SIZE * 11);
+        this.DrawMapLoop(GameConfig.TILE_MAP7, GameConfig.SCREEN_WIDTH * 4 + 170, GameConfig.SCREEN_HEIGHT / 2 + GameConfig.TILE_SIZE * 2);
+        this.DrawMapLoop(GameConfig.TILE_MAP8, GameConfig.SCREEN_WIDTH * 5 + 140, GameConfig.SCREEN_HEIGHT / 2 + GameConfig.TILE_SIZE * 8);
 
         
         this.addChild(this.tilemap);
