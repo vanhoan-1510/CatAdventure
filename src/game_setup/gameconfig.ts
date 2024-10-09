@@ -1,7 +1,7 @@
 import { Gravity } from "../physics/gravity";
 
 export class GameConfig {
-    public static readonly WORLD_WIDTH = 50000;
+    public static readonly WORLD_WIDTH = 10600;
     public static readonly WORLD_HEIGHT = 2500;
     public static readonly SCREEN_WIDTH = 1600;
     public static readonly SCREEN_HEIGHT = 900;
@@ -47,6 +47,11 @@ export class GameConfig {
     public static readonly TILE_MAP8 = [
         [2, ...Array(20).fill(2)],
         ...Array(6).fill([5, ...Array(20).fill(5)])
+    ];
+
+    public static readonly TILE_MAP9 = [
+        [1, ...Array(40).fill(2)],
+        ...Array(26).fill([4, ...Array(40).fill(5)])
     ];
 
 

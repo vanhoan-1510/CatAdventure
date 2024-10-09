@@ -1,0 +1,49 @@
+{
+  "spritemap": {
+    "buttonclick": {
+      "start": 0,
+      "end": 0.09698412698412698,
+      "loop": false
+    },
+    "coincollect": {
+      "start": 2,
+      "end": 2.7199999999999998,
+      "loop": false
+    },
+    "gamebackgroundmusic": {
+      "start": 4,
+      "end": 481.1680045351474,
+      "loop": false
+    },
+    "gameover": {
+      "start": 483,
+      "end": 485.01598639455784,
+      "loop": false
+    },
+    "jump": {
+      "start": 487,
+      "end": 487.47020408163263,
+      "loop": false
+    },
+    "manlaught": {
+      "start": 489,
+      "end": 492.8138775510204,
+      "loop": false
+    },
+    "menusound": {
+      "start": 494,
+      "end": 626.545306122449,
+      "loop": false
+    },
+    "punch": {
+      "start": 628,
+      "end": 628.5040136054422,
+      "loop": false
+    },
+    "win": {
+      "start": 630,
+      "end": 631.8808163265306,
+      "loop": false
+    }
+  }
+}

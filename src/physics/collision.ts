@@ -63,7 +63,10 @@ export class Collision {
             if (bodyB.type === 'trap' && !this.hasEmittedDead) {
                 EventHandle.emit('Dead');
                 this.hasEmittedDead = true;
-            } 
+            }
+            else if (bodyB.type === 'gamewin') {
+                EventHandle.emit('Win');
+            }
         } else {
             // Reset the event flag when no collision is detected
             this.hasEmittedDead = false;

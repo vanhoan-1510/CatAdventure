@@ -7,6 +7,6 @@ export class AssetsLoader{
         await Assets.init({ manifest: bundles });
     
         // Hoặc tải tài nguyên trước khi sử dụng với await
-        await Assets.loadBundle('load-tile-map');
+        await Assets.loadBundle('load-scence');
     };
 }

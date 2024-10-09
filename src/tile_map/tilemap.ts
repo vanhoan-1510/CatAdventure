@@ -44,6 +44,7 @@ export class TileMap extends Container{
         this.DrawMapLoop(GameConfig.TILE_MAP6, GameConfig.SCREEN_WIDTH * 4 + 140, GameConfig.SCREEN_HEIGHT / 2 + GameConfig.TILE_SIZE * 11);
         this.DrawMapLoop(GameConfig.TILE_MAP7, GameConfig.SCREEN_WIDTH * 4 + 170, GameConfig.SCREEN_HEIGHT / 2 + GameConfig.TILE_SIZE * 2);
         this.DrawMapLoop(GameConfig.TILE_MAP8, GameConfig.SCREEN_WIDTH * 5 + 140, GameConfig.SCREEN_HEIGHT / 2 + GameConfig.TILE_SIZE * 8);
+        this.DrawMapLoop(GameConfig.TILE_MAP9, GameConfig.SCREEN_WIDTH * 6 - 200,  GameConfig.TILE_SIZE * 2);
 
         
         this.addChild(this.tilemap);
@@ -62,6 +63,21 @@ export class TileMap extends Container{
         }
     }
 
+    
+    TutorialNotification(){
+        const tutorialBanner = new Sprite(Assets.get('helpbanner'));
+        tutorialBanner.position.set(400, GameConfig.SCREEN_HEIGHT / 2 + GameConfig.TILE_SIZE * 2 );
+        tutorialBanner.anchor.set(0.5, 0.5);
+        this.addChild(tutorialBanner);
+    }
+
+    WinNotification(){
+        const winBanner = new Sprite(Assets.get('winbanner'));
+        winBanner.position.set(10300, -GameConfig.TILE_SIZE * 5 );
+        winBanner.anchor.set(0.5, 0.5);
+        this.addChild(winBanner);
+    }
+
     Init() {
         this.SetBackground();
 
@@ -73,5 +89,7 @@ export class TileMap extends Container{
 
         this.tilemap = new CompositeTilemap();
         this.DrawTileMap();
+        this.TutorialNotification();
+        this.WinNotification();
     }
 }

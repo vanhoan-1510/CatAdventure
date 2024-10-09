@@ -1,4 +1,5 @@
 import { Assets, AnimatedSprite, Texture, Container } from "pixi.js";
+import { Sound, sound } from "@pixi/sound";
 import { Gravity } from "../physics/gravity";
 import { World } from "../physics/world";
 import { Body } from "../physics/body";
@@ -30,6 +31,7 @@ export class Character extends Container {
     }
 
     Init() {
+
         this.position = GameConfig.CHARACTER_DEFAULT_POSISION;
 
         const defaultTexture = Texture.WHITE;
@@ -110,6 +112,7 @@ export class Character extends Container {
                     this.playAnimation("run", true, 0.5);
                 }
             } else if (event.key === ' ' && !this.isJumping) {
+                EventHandle.emit('Jump');
                 this.isJumping = true;
                 this.playAnimation("jump", false, 0.25);
                 this.characterBody.velocity.y = -0.7;
@@ -173,7 +176,16 @@ export class Character extends Container {
             this.characterBody.position.x = 50;
         }
 
-        if(this.characterBody.position.y > 2000) {
+        if (this.characterBody.position.x > 10600){
+            this.characterBody.position.x = 10600;
+        }
+
+        if(this.characterBody.position.x < GameConfig.SAVE_POINT_DEFAULT_POSISION.x && this.characterBody.position.y > 2000) {
+            this.Dead();
+            this.characterBody.position.x = 100;
+        }
+
+        if(this.characterBody.position.x >= GameConfig.SAVE_POINT_DEFAULT_POSISION.x && this.characterBody.position.y > 2000) {
             this.Dead();
             this.characterBody.position.x = 5400;
         }

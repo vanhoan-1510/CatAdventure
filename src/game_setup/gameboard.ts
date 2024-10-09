@@ -25,6 +25,7 @@ export class GameBoard {
     
     private viewport: Viewport;
     private farthestPointReached: number = 0;
+    private farthestPointReachedRight: number = 0;
     private targetTop: number = 0;
     private targetBottom: number = GameConfig.SCREEN_HEIGHT;
 
@@ -141,6 +142,8 @@ export class GameBoard {
         this.trap.Trap8Resolve(this.character.position);
         this.trap.Trap9Resolve(this.character.position);
         this.trap.Trap10Resolve(this.character.position);
+        this.trap.Trap11Resolve(this.character.position);
+        this.trap.Trap12Resolve(this.character.position, this.character.characterBody);
     
         if (this.isFootIconShow) {
             this.trap.ShowFootIcon(delta);
@@ -175,11 +178,22 @@ export class GameBoard {
             this.character.characterBody.velocity.x = 0;
         }
     
+        // Check if the character is at the end of the map
+        if (this.character.position.x >= GameConfig.WORLD_WIDTH - this.app.screen.width / 2) {
+            this.farthestPointReached = GameConfig.WORLD_WIDTH - this.app.screen.width / 2;
+        } else {
+            // Update farthestPointReached only if character is not at the end of the map
+            if (this.character.position.x > this.farthestPointReached) {
+                this.farthestPointReached = this.character.position.x;
+            }
+        }
+    
+        // Handle camera target positions based on character's position
         if (this.character.position.x > 2850 && this.character.position.x <= 3850) {
             this.targetTop = -170;
             this.targetBottom = GameConfig.SCREEN_HEIGHT - 170;
         }
-
+    
         if (this.character.position.x > 3875 && this.character.position.x <= 5300) {
             this.targetTop = 0;
             this.targetBottom = GameConfig.SCREEN_HEIGHT;
@@ -189,7 +203,16 @@ export class GameBoard {
             this.targetTop = 500;
             this.targetBottom = GameConfig.SCREEN_HEIGHT + 500;
         }
-
+    
+        if (this.character.position.x >= 9000 && this.character.position.y < GameConfig.SCREEN_HEIGHT / 2 - 200) {
+            this.targetTop = -400;
+            this.targetBottom = GameConfig.SCREEN_HEIGHT - 400;
+        } else if (this.character.position.x >= 9000 && this.character.position.y >= GameConfig.SCREEN_HEIGHT / 2 - 100) {
+            this.targetTop = 0;
+            this.targetBottom = GameConfig.SCREEN_HEIGHT;
+        }
+    
+        // Smooth transition for camera movement
         const lerpFactor = 0.05;
         const currentTop = this.viewport.top;
         const currentBottom = this.viewport.bottom;
@@ -197,6 +220,7 @@ export class GameBoard {
         const newTop = currentTop + (this.targetTop - currentTop) * lerpFactor;
         const newBottom = currentBottom + (this.targetBottom - currentBottom) * lerpFactor;
     
+        // Clamp the viewport within the world boundaries
         this.viewport.clamp({
             left: 0,
             right: GameConfig.WORLD_WIDTH,
@@ -204,6 +228,7 @@ export class GameBoard {
             bottom: newBottom,
         });
     }
+    
     
 
     ResetGame(){

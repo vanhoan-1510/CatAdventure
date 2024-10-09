@@ -1,4 +1,4 @@
-import { Assets, Container, AnimatedSprite, Texture, Sprite } from "pixi.js";
+import { Assets, Container, AnimatedSprite, Texture, Sprite, Graphics } from "pixi.js";
 import { GameConfig } from "../game_setup/gameconfig";
 import { World } from "../physics/world";
 import { Body } from "../physics/body";
@@ -9,6 +9,7 @@ export class Trap extends Container {
     private world: World;
     private gravity: Gravity;
 
+    //#region "Textures"
     public blockTextures: Texture[];
     public wallTexture: Texture;
     public footIconTexture: Texture;
@@ -32,7 +33,13 @@ export class Trap extends Container {
     public deadMessageTexture: Texture;
     public groundSplitTexture: Texture;
     public woodTexture: Texture;
+    public fakeCatTexture1: Texture;
+    public catTexture: Texture;
+    public fistTexture: Texture;
 
+    //#endregion 'Textures'
+
+    //#region "Sprites"
     public questionBlock: AnimatedSprite;
     public footIcon: Sprite;
     public foot: Sprite;
@@ -58,8 +65,14 @@ export class Trap extends Container {
     public deadMessage: Sprite;
     public groundSplit: Sprite;
     public wood: Sprite;
+    public woodTrap: Sprite;
+    public fakeCat1: Sprite;
+    public fakeCat2: Sprite;
+    public fist: Sprite;
+    public realCat: Sprite;
+    //#endregion "Sprites"
 
-
+    //#region "Bodies"
     public blockBody: Body;
     public footBody: Body;
     public sunBody: Body;
@@ -69,11 +82,21 @@ export class Trap extends Container {
     public bBlockBody: Body;
     public enemyBody: Body;
     public groundSplitBody: Body;
+    public woodBody: Body;
+    public fistBody: Body;
+    public catBody: Body;
+
+    //#endregion "Bodies"
 
     private footPositionX: number;
+    private woodDirection: number = -1;
+    private woodSpeed = 0;
+    private woodTrapRotationSpeed: number = 0.2;
+    private fistRotationSpeed: number = 0.5; 
 
     public isSunTrapEnabled: boolean = false;
     private bombActivated: boolean = false;
+    private isCollideWithFist: boolean = false;
 
     constructor(world: World) {
         super();
@@ -92,6 +115,9 @@ export class Trap extends Container {
             this._Trap8();
             this._Trap9();
             this._Trap10();
+            this._Trap11();
+            this._Trap12();
+            this.GameWin();
         });
     }
 
@@ -170,8 +196,13 @@ export class Trap extends Container {
         this.enemyTexture = Assets.get('enemy');
         this.deadMessage = Assets.get('deadmessage');
         this.groundSplitTexture = Assets.get('groundsplit');
+        this.woodTexture = Assets.get('woodline');
+        this.fakeCatTexture1 = Assets.get('catfake');
+        this.catTexture = Assets.get('idle1');
+        this.fistTexture = Assets.get('strongfist');
     }
 
+    //#region "Trap"
     _Trap1() {
         if (this.blockTextures.length === 4) {
             this.questionBlock = new AnimatedSprite(this.blockTextures);
@@ -758,6 +789,113 @@ export class Trap extends Container {
         }
     }
 
+    _Trap11() {
+        this.wood = new Sprite(this.woodTexture);
+        this.wood.position.set(9100, GameConfig.SCREEN_HEIGHT / 2 + 100);
+        this.wood.anchor.set(0.5, 0.5);
+        this.wood.scale.set(0.3);
+        this.addChild(this.wood);
+        this.woodBody = new Body(this.wood.position.x - 25, this.wood.position.y + 15, this.wood.width* 0.7, this.wood.height, 1, true, 0, 'ground');
+        this.world.addBodyB(this.woodBody);
+
+        this.woodTrap = new Sprite(this.woodTexture);
+        this.woodTrap.position.set(9400, GameConfig.TILE_SIZE * 2);
+        this.woodTrap.anchor.set(1, 1);
+        this.woodTrap.scale.set(0.3);
+        this.addChild(this.woodTrap);
+
+    }   
+
+    MoveWoodUpDown() {
+        const maxHeight = GameConfig.SCREEN_HEIGHT;
+        const minHeight = 0;
+
+        this.wood.position.y += this.woodDirection * this.woodSpeed;
+        this.woodBody.position.y = this.wood.position.y + 15;
+
+        if (this.wood.position.y >= maxHeight || this.wood.position.y <= minHeight) {
+            this.woodDirection *= -1;
+        }
+    }
+
+    Trap11Resolve(characterPosition: { x: number, y: number }) {
+        if (characterPosition.x >= 8200) {
+            this.woodSpeed = 0.5;
+        }
+
+        if(characterPosition.x >= 9250 && characterPosition.x <= 9420 && characterPosition.y > 20) {
+            if (this.woodTrap.rotation > -Math.PI/2) {
+                this.woodTrap.rotation -= this.woodTrapRotationSpeed;
+            } else {
+                this.woodTrap.rotation = - Math.PI /2;
+            }
+        }
+    }
+
+    _Trap12(){
+        this.fakeCat1 = new Sprite(this.fakeCatTexture1);
+        this.fakeCat1.position.set(10300, GameConfig.TILE_SIZE - 5);
+        this.fakeCat1.anchor.set(0.5, 0.5);
+        this.fakeCat1.scale.x = -1;
+        this.fakeCat1.visible = false;
+        this.addChild(this.fakeCat1);
+        console.log(this.fakeCat1.position);
+
+        this.fakeCat2 = new Sprite(this.catTexture);
+        this.fakeCat2.position.set(10300, GameConfig.TILE_SIZE - 5);
+        this.fakeCat2.anchor.set(0.5, 0.5);
+        this.fakeCat2.scale.x = -1;
+        // this.fakeCat2.visible = false;
+        this.addChild(this.fakeCat2);
+
+        this.fist = new Sprite(this.fistTexture);
+        this.fist.position.set(10290, 70);
+        this.fist.anchor.set(0.5,1);
+        this.fist.scale.set(0.5);
+        this.fist.visible = false;
+        this.fist.rotation = -Math.PI;
+        this.addChild(this.fist);
+    }
+
+    Trap12Resolve(characterPosition: { x: number, y: number }, characterBody: Body) {
+        if(characterPosition.x >= 10260 && characterPosition.x <= 10300 && characterPosition.y >= 0) {
+            this.isCollideWithFist = true;
+            this.fakeCat1.visible = true;
+            this.fakeCat2.visible = false;
+            this.fist.visible = true;
+            characterBody.velocity.y = -2;
+            characterBody.velocity.x = -5;
+            EventHandle.emit('Dead');
+        }
+    }
+
+    RotateFist() {
+        if (this.fist.rotation > 0) {
+            this.fist.rotation -= this.fistRotationSpeed;
+            if (this.fist.rotation < 0) {
+                this.fist.rotation = 0;
+            }
+        } else if (this.fist.rotation < 0) {
+            this.fist.rotation += this.fistRotationSpeed;
+            if (this.fist.rotation > 0) {
+                this.fist.rotation = 0;
+            }
+        }
+    }
+
+    //#endregion 'Trap'
+
+    GameWin(){
+        this.realCat = new Sprite(this.catTexture);
+        this.realCat.position.set(10450, - GameConfig.TILE_SIZE * 8);
+        this.realCat.anchor.set(0.5, 0.5);
+        this.realCat.scale.x = -1;
+        this.addChild(this.realCat);
+
+        this.catBody = new Body(this.realCat.position.x, this.realCat.position.y, this.realCat.width, this.realCat.height / 2, 1, true, 0.1, 'gamewin');
+        this.world.addBodyB(this.catBody);
+    }
+
     public update(delta: number) {
         this.gravity.applyGravity(this.sunBody, delta);
         this.sun.position.x = this.sunBody.position.x;
@@ -769,7 +907,13 @@ export class Trap extends Container {
         }
 
         this.world.update(delta);
+        this.MoveWoodUpDown();
+
+        if(this.isCollideWithFist) {
+            this.RotateFist();
+        }
     }
+
 
     public reset() {
         this.questionBlock.visible = false;
@@ -781,7 +925,7 @@ export class Trap extends Container {
         this.sunBody.position.y = GameConfig.SUN_DEFAULT_POSISION.y;
         this.sunBody.velocity.y = 0;
         this.sunBody.isStatic = true;
-        
+
         for (let i = 0; i < this.spike1.length; i++) {
             this.spike1[i].visible = false;
         }
@@ -811,5 +955,16 @@ export class Trap extends Container {
 
         this.enemy.position = GameConfig.ENEMY_POSITION;
         this.deadMessage.visible = false;
+
+        this.wood.position.set(9100, GameConfig.SCREEN_HEIGHT / 2 + 100);
+        this.woodBody.position.y = GameConfig.SCREEN_HEIGHT / 2 + 100;
+        this.woodDirection = -1;
+        this.woodSpeed = 0;
+
+        this.fakeCat1.visible = false;
+        this.fakeCat2.visible = true;
+        this.fist.visible = false;
+        this.isCollideWithFist = false;
+        this.fist.rotation = -Math.PI;
     }
 }

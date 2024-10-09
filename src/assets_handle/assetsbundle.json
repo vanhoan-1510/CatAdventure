@@ -2,7 +2,7 @@
     "bundles": 
     [
       {
-        "name": "load-tile-map",
+        "name": "load-scence",
         "assets": [
             {
                 "alias": "background",
@@ -27,6 +27,14 @@
             {
                 "alias": "tileobject",
                 "src": "./atlas/tileobject-pack-result.json"
+            },
+            {
+                "alias": "soundpackjson",
+                "src": "./soundsprite/soundpackresult.json"
+            },
+            {
+                "alias": "soundpackmp3",
+                "src": "./soundsprite/soundpackresult.mp3"
             }
         ]
       }

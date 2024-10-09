@@ -2,10 +2,11 @@
   "name": "typescriptWP",
   "version": "1.0.0",
   "main": "index.js",
-  "repository": "https://github.com/dmr-training/hoang-van-hoan.git",
+  "repository": "https://github.com/vanhoan-1510/CatAdventure",
   "license": "MIT",
   "devDependencies": {
     "clean-webpack-plugin": "^4.0.0",
+    "audiosprite": "^0.7.2",
     "copy-webpack-plugin": "^12.0.2",
     "cross-env": "^7.0.3",
     "free-tex-packer-core": "^0.3.4",
@@ -28,6 +29,7 @@
   "scripts": {
     "start": "webpack serve --mode development",
     "build": "cross-env NODE_ENV=production webpack --mode production",
-    "packtexture": "node ./tools/packtextures.js"
+    "packtexture": "node ./tools/packtextures.js",
+    "soundpack": "node ./tools/audiosprite.js"
   }
 }

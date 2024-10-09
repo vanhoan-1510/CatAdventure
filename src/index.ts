@@ -1,7 +1,8 @@
-import { Application, Assets, Graphics, Sprite } from 'pixi.js';
+import { Application, Assets, Graphics, noiseWgsl, Sprite } from 'pixi.js';
 import { AssetsLoader } from './assets_handle/assetsloader';
 import { GameBoard } from './game_setup/gameboard';
 import { GameConfig } from './game_setup/gameconfig';
+import { SoundManager } from './game_setup/soundmanager';
 
 
 // Asynchronous IIFE
@@ -15,6 +16,8 @@ import { GameConfig } from './game_setup/gameconfig';
     // Load assets
     const assetsLoader = new AssetsLoader();
     await assetsLoader.loadAssets();
+
+    const soundManager = new SoundManager();
 
     const gameBoard = new GameBoard(app);
 
