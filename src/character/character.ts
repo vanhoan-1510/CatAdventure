@@ -1,5 +1,4 @@
 import { Assets, AnimatedSprite, Texture, Container } from "pixi.js";
-import { Sound, sound } from "@pixi/sound";
 import { Gravity } from "../physics/gravity";
 import { World } from "../physics/world";
 import { Body } from "../physics/body";
@@ -28,6 +27,7 @@ export class Character extends Container {
 
         this.Init();
         EventHandle.on('Dead', () => this.Dead());
+        EventHandle.on('Win', () => this.GameWin());
     }
 
     Init() {
@@ -113,6 +113,7 @@ export class Character extends Container {
                 }
             } else if (event.key === ' ' && !this.isJumping) {
                 EventHandle.emit('Jump');
+                EventHandle.emit('JumpSound');
                 this.isJumping = true;
                 this.playAnimation("jump", false, 0.25);
                 this.characterBody.velocity.y = -0.7;
@@ -153,7 +154,13 @@ export class Character extends Container {
     }
 
     private Dead(): void {
+        if (this.isDead) return;
         this.playAnimation("dead", false, 0.5);
+        EventHandle.emit('DeadSound');
+        EventHandle.emit('UpdateScore', -100);
+        EventHandle.emit('ShowGameNotification');
+        EventHandle.emit('PlayerLose', false);
+        this.characterBody.velocity.x = 0;
         this.isDead = true;
     }
 
@@ -180,14 +187,18 @@ export class Character extends Container {
             this.characterBody.position.x = 10600;
         }
 
-        if(this.characterBody.position.x < GameConfig.SAVE_POINT_DEFAULT_POSISION.x && this.characterBody.position.y > 2000) {
+        if(this.characterBody.position.x < GameConfig.SAVE_POINT_DEFAULT_POSISION.x && this.characterBody.position.y > GameConfig.SCREEN_HEIGHT && !this.isDead) {
             this.Dead();
-            this.characterBody.position.x = 100;
+            setTimeout(() => {
+                this.characterBody.position.x = 100;
+            }, 1000);
         }
 
-        if(this.characterBody.position.x >= GameConfig.SAVE_POINT_DEFAULT_POSISION.x && this.characterBody.position.y > 2000) {
+        if(this.characterBody.position.x >= GameConfig.SAVE_POINT_DEFAULT_POSISION.x && this.characterBody.position.y > GameConfig.SCREEN_HEIGHT && !this.isDead) {
             this.Dead();
-            this.characterBody.position.x = 5400;
+            setTimeout(() => {
+                this.characterBody.position.x = 5400;
+            }, 1000);
         }
 
         // console.log(this.position.x, this.position.y);
@@ -196,5 +207,10 @@ export class Character extends Container {
     public GetIdleAnimation(): AnimatedSprite {
         this.playAnimation("idle", true, 0.5);
         return this.characterSprite;
+    }
+
+    GameWin(){
+        this.characterBody.velocity.x = 0;
+        this.isDead = true;
     }
 }

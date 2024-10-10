@@ -21,12 +21,10 @@ export class World {
         this.bodyB.push(body);
     }
 
-    // Hàm để xoá một body khỏi bodyA bằng đối tượng
     removeBodyA(bodyToRemove: Body) {
         this.bodyA = this.bodyA.filter(body => body !== bodyToRemove);
     }
 
-    // Hàm để xoá một body khỏi bodyB bằng đối tượng
     removeBodyB(bodyToRemove: Body) {
         this.bodyB = this.bodyB.filter(body => body !== bodyToRemove);
     }
@@ -36,7 +34,6 @@ export class World {
         const subDelta = delta / subSteps;
 
         for (let step = 0; step < subSteps; step++) {
-            // Cập nhật vị trí các đối tượng
             for (let i = 0; i < this.bodyA.length; i++) {
                 const bodyA = this.bodyA[i];
                 for (let j = 0; j < this.bodyB.length; j++) {
@@ -47,7 +44,6 @@ export class World {
                 }
             }
 
-            // Áp dụng lực hấp dẫn và cập nhật vị trí cho bodyA
             for (const body of this.bodyA) {
                 if (!body.isStatic) {
                     this.gravity.applyGravity(body, subDelta);
@@ -55,7 +51,6 @@ export class World {
                 }
             }
 
-            // Áp dụng lực hấp dẫn và cập nhật vị trí cho bodyB
             for (const body of this.bodyB) {
                 if (!body.isStatic) {
                     this.gravity.applyGravity(body, subDelta);

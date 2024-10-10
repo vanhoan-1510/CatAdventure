@@ -8,9 +8,7 @@ import { SoundManager } from './game_setup/soundmanager';
 // Asynchronous IIFE
 (async () => {
     const app = new Application();
-    // Lấy canvas element từ HTML
     const canvas = <HTMLCanvasElement>document.getElementById('GameCanvas');
-    // Cài đặt app với canvas.
     await app.init({ background: '#cccccc', canvas: canvas, width: GameConfig.SCREEN_WIDTH, height: GameConfig.SCREEN_HEIGHT });
 
     // Load assets

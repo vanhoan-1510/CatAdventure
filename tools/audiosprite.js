@@ -9,7 +9,7 @@ const files = fs.readdirSync(soundDir)
   .filter(file => file.endsWith('.mp3'))
   .map(file => path.join(soundDir, file));
 
-const outputDir = path.resolve(__dirname, '../assets/soundsprite');
+const outputDir = path.resolve(__dirname, '../assets/atlas/soundsprite');
 const opts = {
   output: path.join(outputDir, soundPackName),
   format: 'mp3',
@@ -22,7 +22,7 @@ if (!fs.existsSync(outputDir)) {
 files.forEach(element => {
   console.log(element);
 });
-// Tạo audiosprite
+
 audiosprite(files, opts, function(err, obj) {
   if (err) return console.error('Error creating audiosprite:', err);
 

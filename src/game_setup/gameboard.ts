@@ -7,12 +7,18 @@ import { Viewport } from "pixi-viewport";
 import { GameConfig } from "./gameconfig";
 import { EventHandle } from "../eventhandle/eventhandle";
 import { Collision } from '../physics/collision';
+import { GameNotification } from '../gameUI/gamenotification';
+import { GameMenu } from "../gameUI/gamemenu";
 
 export class GameBoard {
     private app: Application;
     private gameContainer: Container; // Contains both tileMap and characterContainer
+    private menuContainer: Container; // Contains menu elements
+    private gameUIContainer: Container; // Contains UI elements
     private tileMapContainer: Container; // Separate container for tileMap
     private characterContainer: Container; // Separate container for character
+    private gameMenu: GameMenu;
+    private gameNotification: GameNotification;
     private character: Character;
     private tileMap: TileMap; 
     private world: World;
@@ -20,62 +26,66 @@ export class GameBoard {
     private isTrap1Activated: boolean = false;
     private isFootIconShow: boolean = false;
     private isFootTrapActivated: boolean = false;
+    private isPlaySavePointSound: boolean = false;
 
     private _SavePoint: { x: number, y: number } = GameConfig.CHARACTER_DEFAULT_POSISION;
     
     private viewport: Viewport;
     private farthestPointReached: number = 0;
-    private farthestPointReachedRight: number = 0;
     private targetTop: number = 0;
     private targetBottom: number = GameConfig.SCREEN_HEIGHT;
 
     constructor(app: Application) {
         this.app = app;
         this.Init();
-
         EventHandle.on('ResetGame', () => this.ResetGame());
     }
 
     Init() {
         this.world = new World(GameConfig.GRAVITY);
-
+    
         // Initialize containers
         this.gameContainer = new Container();
+        this.menuContainer = new Container();
+        this.gameUIContainer = new Container();
         this.tileMapContainer = new Container();
         this.characterContainer = new Container();
-
-        // Initialize and add tileMap to its container
-        this.tileMap = new TileMap(this.world); 
-        this.tileMapContainer.addChild(this.tileMap); 
-        this.tileMap.DrawTileMap();
-
-        // Initialize and add character to its container
-        this.character = new Character(this.world); 
-        this.characterContainer.addChild(this.character);
-
-        // Initialize and add trap to its container
-        this.trap = new Trap(this.world);
-        this.trap.addChild(this.trap);
-
-        // Add both tileMapContainer and characterContainer to gameContainer
-        this.gameContainer.addChild(this.tileMapContainer);
-        this.gameContainer.addChild(this.characterContainer);
-        this.gameContainer.addChild(this.trap);
-
-
-
+    
         // Initialize and set up the viewport
         this.viewport = new Viewport({
-            screenWidth: this.app.screen.width,
-            screenHeight: this.app.screen.height,
+            screenWidth: GameConfig.SCREEN_WIDTH,
+            screenHeight: GameConfig.SCREEN_HEIGHT,
             worldWidth: GameConfig.WORLD_WIDTH,
             worldHeight: GameConfig.WORLD_HEIGHT,
             events: this.app.renderer.events
         });
-
+    
         this.app.stage.addChild(this.viewport);
         this.viewport.addChild(this.gameContainer);
 
+        this.gameNotification = new GameNotification(this.viewport);
+        this.gameUIContainer.addChild(this.gameNotification);
+    
+        // Initialize and add tileMap to its container
+        this.tileMap = new TileMap(this.world); 
+        this.tileMapContainer.addChild(this.tileMap); 
+        this.tileMap.DrawTileMap();
+    
+        // Initialize and add character to its container
+        this.character = new Character(this.world); 
+        this.characterContainer.addChild(this.character);
+    
+        // Initialize and add trap to its container
+        this.trap = new Trap(this.world);
+        this.trap.addChild(this.trap);
+    
+        // Add both tileMapContainer and characterContainer to gameContainer
+        this.gameContainer.addChild(this.tileMapContainer);
+        this.gameContainer.addChild(this.characterContainer);
+        this.gameContainer.addChild(this.trap);
+        this.gameContainer.addChild(this.gameUIContainer);
+        this.gameContainer.addChild(this.menuContainer);
+    
         // Clamp the viewport within world boundaries
         this.viewport.clamp({
             left: 0,
@@ -83,13 +93,17 @@ export class GameBoard {
             top: 0,
             bottom: GameConfig.SCREEN_HEIGHT,
         });
-
+    
         // Set the character in the center of the viewport initially
         this.viewport.moveCenter(this.character.x, this.character.y);
-
+    
         // Follow the character
         this.viewport.follow(this.character);
+
+        this.gameMenu = new GameMenu();
+        this.menuContainer.addChild(this.gameMenu);
     }
+    
 
     Trap1Resolve() {
         if (!this.isTrap1Activated && 
@@ -157,12 +171,17 @@ export class GameBoard {
             this.farthestPointReached = this.character.x;
         }
 
-        if(this.character.position.x > GameConfig.SAVE_POINT_DEFAULT_POSISION.x){
+        if(this.character.position.x > GameConfig.SAVE_POINT_DEFAULT_POSISION.x && !this.isPlaySavePointSound){
             this._SavePoint = { x: GameConfig.SAVE_POINT_DEFAULT_POSISION.x, y: 200 };
+            EventHandle.emit('SavePointSound');
+            this.isPlaySavePointSound = true;
         }
-    
-        // Handle camera logic in a separate function
+
         this.HandleCamera();
+        this.gameNotification.update(delta);
+
+        this.gameNotification.x = this.viewport.left
+        this.gameNotification.y = this.viewport.top
     }
     
     private HandleCamera() {
@@ -182,7 +201,6 @@ export class GameBoard {
         if (this.character.position.x >= GameConfig.WORLD_WIDTH - this.app.screen.width / 2) {
             this.farthestPointReached = GameConfig.WORLD_WIDTH - this.app.screen.width / 2;
         } else {
-            // Update farthestPointReached only if character is not at the end of the map
             if (this.character.position.x > this.farthestPointReached) {
                 this.farthestPointReached = this.character.position.x;
             }
@@ -192,6 +210,10 @@ export class GameBoard {
         if (this.character.position.x > 2850 && this.character.position.x <= 3850) {
             this.targetTop = -170;
             this.targetBottom = GameConfig.SCREEN_HEIGHT - 170;
+        }
+        else{
+            this.targetTop = 0;
+            this.targetBottom = GameConfig.SCREEN_HEIGHT;
         }
     
         if (this.character.position.x > 3875 && this.character.position.x <= 5300) {
@@ -228,7 +250,6 @@ export class GameBoard {
             bottom: newBottom,
         });
     }
-    
     
 
     ResetGame(){

@@ -31,7 +31,7 @@ export class TileMap extends Container{
     }
 
     DrawTileMap() {
-        for (let i = 1; i <= 18; i++) {
+        for (let i = 1; i <= 12; i++) {
             const texture = Assets.get(`tile${i}`);
             this.textures.push(texture);
         }
@@ -59,6 +59,17 @@ export class TileMap extends Container{
                 const tileBody = new Body(startX + x * GameConfig.TILE_SIZE + GameConfig.TILE_SIZE, startY + y * GameConfig.TILE_SIZE + GameConfig.TILE_SIZE, 
                     GameConfig.TILE_SIZE / 2, GameConfig.TILE_SIZE / 2, 0, true, 0, 'ground');
                 this.world.addBodyB(tileBody);
+            }
+        }
+    }
+
+    DrawClouds(){
+        for (let i = 1; i <= 3; i++) {
+            const cloudTexture = Assets.get(`cloud${i}`);
+            for (let j = 1; j < 30; j++) {
+                const cloud = Sprite.from(cloudTexture);
+                cloud.position.set(GameConfig.SCREEN_WIDTH / 2 * j * i, 100);
+                this.addChild(cloud);
             }
         }
     }
@@ -91,5 +102,6 @@ export class TileMap extends Container{
         this.DrawTileMap();
         this.TutorialNotification();
         this.WinNotification();
+        this.DrawClouds();
     }
 }

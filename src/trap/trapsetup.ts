@@ -96,7 +96,9 @@ export class Trap extends Container {
 
     public isSunTrapEnabled: boolean = false;
     private bombActivated: boolean = false;
+    private isGroundSplit: boolean = false;
     private isCollideWithFist: boolean = false;
+    private isPlayPuchSound: boolean = false;
 
     constructor(world: World) {
         super();
@@ -300,11 +302,16 @@ export class Trap extends Container {
         const dx = footTargetPosition.x - this.foot.position.x;
         const distance = Math.abs(dx);
     
-        if (distance > 1) {
+        if (distance > 20) {
             const moveX = (dx / distance) * footSpeed * delta;
             this.foot.position.x += moveX;
             this.footPositionX = this.foot.position.x;
             this.footBody.position.x = this.foot.position.x;
+        }
+
+        if(!this.isPlayPuchSound){
+            EventHandle.emit('PunchSound');
+            this.isPlayPuchSound = true;
         }
         this.footIcon.visible = false;
     }
@@ -523,6 +530,7 @@ export class Trap extends Container {
 
         if (characterPosition.x >= 4350 && characterPosition.x <= 4450 && characterPosition.y >= GameConfig.SCREEN_HEIGHT/2 + GameConfig.TILE_SIZE * 8) {
             characterBody.velocity.x = -2;
+            this.mushroom1.visible = true;
         }
         if (characterPosition.x >= 4600 && characterPosition.x <= 4650 && characterPosition.y >= GameConfig.SCREEN_HEIGHT/2 + GameConfig.TILE_SIZE * 6 ) {
             characterBody.velocity.y = -1.5;
@@ -780,12 +788,12 @@ export class Trap extends Container {
     }
 
     Trap10Resolve(characterPosition: { x: number, y: number }) {
-        if (characterPosition.x >= 8780 && characterPosition.x <= 8864){
-            const speed = 1;
+        if (characterPosition.x >= 8780 && characterPosition.x <= 8864 && !this.isGroundSplit){
             setTimeout(() => {
-            this.groundSplit.position.x = 8900;
-            this.groundSplitBody.position.x = 8900;
-            }, 2000);
+            this.groundSplit.position.x = 8950;
+            this.groundSplitBody.position.x = 8950;
+            this.isGroundSplit = true;
+            }, 3000);
         }
     }
 
@@ -799,7 +807,7 @@ export class Trap extends Container {
         this.world.addBodyB(this.woodBody);
 
         this.woodTrap = new Sprite(this.woodTexture);
-        this.woodTrap.position.set(9400, GameConfig.TILE_SIZE * 2);
+        this.woodTrap.position.set(9400, GameConfig.TILE_SIZE * 3);
         this.woodTrap.anchor.set(1, 1);
         this.woodTrap.scale.set(0.3);
         this.addChild(this.woodTrap);
@@ -858,14 +866,16 @@ export class Trap extends Container {
     }
 
     Trap12Resolve(characterPosition: { x: number, y: number }, characterBody: Body) {
-        if(characterPosition.x >= 10260 && characterPosition.x <= 10300 && characterPosition.y >= 0) {
+        if(characterPosition.x >= 10260 && characterPosition.x <= 10300 && characterPosition.y >= 0 && !this.isPlayPuchSound) {
             this.isCollideWithFist = true;
             this.fakeCat1.visible = true;
             this.fakeCat2.visible = false;
             this.fist.visible = true;
             characterBody.velocity.y = -2;
-            characterBody.velocity.x = -5;
+            characterBody.velocity.x = -2;
+            EventHandle.emit('PunchSound');
             EventHandle.emit('Dead');
+            this.isPlayPuchSound = true;
         }
     }
 
@@ -892,7 +902,7 @@ export class Trap extends Container {
         this.realCat.scale.x = -1;
         this.addChild(this.realCat);
 
-        this.catBody = new Body(this.realCat.position.x, this.realCat.position.y, this.realCat.width, this.realCat.height / 2, 1, true, 0.1, 'gamewin');
+        this.catBody = new Body(this.realCat.position.x, this.realCat.position.y + 20, this.realCat.width, this.realCat.height / 2, 1, true, 0.1, 'gamewin');
         this.world.addBodyB(this.catBody);
     }
 
@@ -917,6 +927,7 @@ export class Trap extends Container {
 
     public reset() {
         this.questionBlock.visible = false;
+        this.isPlayPuchSound = false;
         this.footIcon.position.set(1840, GameConfig.SCREEN_HEIGHT / 2 + 100);
         this.footIcon.visible = false;
         this.foot.position.set(-500, GameConfig.SCREEN_HEIGHT / 2);
@@ -956,10 +967,16 @@ export class Trap extends Container {
         this.enemy.position = GameConfig.ENEMY_POSITION;
         this.deadMessage.visible = false;
 
+        this.isGroundSplit = false;
+        this.groundSplit.position.x = 8840;
+        this.groundSplitBody.position.x = 8840;
+
         this.wood.position.set(9100, GameConfig.SCREEN_HEIGHT / 2 + 100);
         this.woodBody.position.y = GameConfig.SCREEN_HEIGHT / 2 + 100;
         this.woodDirection = -1;
         this.woodSpeed = 0;
+
+        this.woodTrap.rotation = 0;
 
         this.fakeCat1.visible = false;
         this.fakeCat2.visible = true;

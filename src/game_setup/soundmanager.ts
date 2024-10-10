@@ -7,9 +7,11 @@ export class SoundManager {
     constructor() {
         this.Init();
 
-        EventHandle.on('Jump', () => this.playJumpSound());
-        EventHandle.on('Dead', () => this.playDeadSound());
-        EventHandle.on('Win', () => this.playWinSound());
+        EventHandle.on('JumpSound', () => this.playJumpSound());
+        EventHandle.on('DeadSound', () => this.playDeadSound());
+        EventHandle.on('WinSound', () => this.playWinSound());
+        EventHandle.on('SavePointSound', () => this.playSavePointSound());
+        EventHandle.on('PunchSound', () => this.playPunchSound());
     }
 
     Init(){
@@ -17,7 +19,11 @@ export class SoundManager {
         this.soundSprite = Sound.from(soundData.soundpack);
         this.soundSprite = sound.find('soundpackmp3');
         this.soundSprite.addSprites(soundData.spritemap);
-        this.soundSprite.play({sprite: 'gamebackgroundmusic',  loop: true});
+        // this.soundSprite.play({sprite: 'gamebackgroundmusic',  loop: true});
+    }
+
+    playBackgroundSound(){
+        this.soundSprite.play({sprite:'menusound', loop: true});
     }
 
     playJumpSound(){
@@ -32,7 +38,11 @@ export class SoundManager {
         this.soundSprite.play('win');
     }
 
-    playBackgroundSound(){
-        this.soundSprite.play({sprite:'menusound', loop: true});
+    playSavePointSound(){
+        this.soundSprite.play('coincollect');
+    }
+
+    playPunchSound(){
+        this.soundSprite.play('punch');
     }
 }

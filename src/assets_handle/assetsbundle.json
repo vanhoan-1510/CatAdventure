@@ -17,10 +17,6 @@
                 "src": "./atlas/character-pack-result.json"
             },
             {
-                "alias": "uipack",
-                "src": "./atlas/otherassets-pack-result.json"
-            },
-            {
                 "alias": "tutorassets",
                 "src": "./atlas/tutorassets-pack-result.json"
             },
@@ -29,14 +25,22 @@
                 "src": "./atlas/tileobject-pack-result.json"
             },
             {
+                "alias": "uipack",
+                "src": "./atlas/ui-pack-result.json"
+            },
+            {
                 "alias": "soundpackjson",
                 "src": "./soundsprite/soundpackresult.json"
             },
             {
                 "alias": "soundpackmp3",
                 "src": "./soundsprite/soundpackresult.mp3"
+            },
+            {
+                "alias": "Fancake",
+                "src": "./obaco-font/Fancake.ttf"
             }
         ]
       }
     ]
-  }
+}

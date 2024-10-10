@@ -66,6 +66,9 @@ export class Collision {
             }
             else if (bodyB.type === 'gamewin') {
                 EventHandle.emit('Win');
+                EventHandle.emit('PlayerWin', true);
+                EventHandle.emit('UpdateScore', 1000);
+                EventHandle.emit('ShowGameNotification');
             }
         } else {
             // Reset the event flag when no collision is detected
