@@ -38,6 +38,7 @@ export class GameBoard {
     constructor(app: Application) {
         this.app = app;
         this.Init();
+        EventHandle.on('StartGame', () => this.Init());
         EventHandle.on('ResetGame', () => this.ResetGame());
     }
 

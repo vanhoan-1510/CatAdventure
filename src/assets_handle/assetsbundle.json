@@ -35,10 +35,19 @@
             {
                 "alias": "soundpackmp3",
                 "src": "./soundsprite/soundpackresult.mp3"
-            },
+            }
+        ]
+      },
+      {
+        "name": "font-text",
+        "assets": [
             {
                 "alias": "Fancake",
-                "src": "./obaco-font/Fancake.ttf"
+                "src": "./font/Fancake.ttf"
+            },
+            {
+                "alias": "GROBOLD",
+                "src": "./font/GROBOLD.ttf"
             }
         ]
       }

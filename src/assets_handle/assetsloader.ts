@@ -6,5 +6,6 @@ export class AssetsLoader{
         await Assets.init({ manifest: bundles });
 
         await Assets.loadBundle('load-scence');
+        await Assets.loadBundle('font-text');
     };
 }
