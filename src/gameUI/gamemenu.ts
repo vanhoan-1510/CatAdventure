@@ -16,8 +16,15 @@ export class GameMenu extends Container {
     private gameTitle: Text;
     private settingBoard: Sprite;
 
+    private settingText: Text;
+
+    private soundState: boolean;
+    private musicState: boolean;
+
     constructor() {
         super();
+        this.soundState = this.getSoundStateFromLocalStorage();
+        this.musicState = this.getMusicStateFromLocalStorage();
         this.Init();
         this.MainMenu();
     }
@@ -64,6 +71,8 @@ export class GameMenu extends Container {
         }
 
         this.boardTexture = Assets.get('pause');
+        EventHandle.emit('PlayMenuMusic');
+        EventHandle.emit('ChangeState', 'menu');
     }
 
     MainMenu() {
@@ -74,7 +83,9 @@ export class GameMenu extends Container {
             align: "center"
         });
 
-        this.gameTitle = new Text("Cat Adventure", titleStyle);
+        this.gameTitle = new Text({
+            text: "Cat Adventure", 
+            style: titleStyle});
         this.gameTitle.anchor.set(0.5);
         this.gameTitle.position.set(GameConfig.SCREEN_WIDTH / 2, 100); // Position at the top center
         this.addChild(this.gameTitle);
@@ -82,8 +93,8 @@ export class GameMenu extends Container {
         const buttonLabels = ["Start", "Settings"];
         const textStyle = new TextStyle({
             fontFamily: "Fancake",
-            fontSize: 80, // Larger font size
-            fill: "#ffffff", // Black color
+            fontSize: 80,
+            fill: "#ffffff",
             align: "center"
         });
 
@@ -94,7 +105,9 @@ export class GameMenu extends Container {
             button.scale.set(0.5);
             this.addChild(button);
 
-            const text = new Text(buttonLabels[i], textStyle);
+            const text = new Text({
+                text: buttonLabels[i],
+                style: textStyle});
             text.anchor.set(0.5);
             button.addChild(text);
             this.buttonText.push(text);
@@ -123,12 +136,16 @@ export class GameMenu extends Container {
             if (buttonLabels[i] === "Settings") {
                 button.on('click', () => {
                     this.SettingMenu();
+                    this.soundState = this.getSoundStateFromLocalStorage();
+                    this.musicState = this.getMusicStateFromLocalStorage();
+                    EventHandle.emit('PlayButtonClickSound');
                 });
             }
 
             if (buttonLabels[i] === "Start") {
                 button.on('click', () => {
                     EventHandle.emit("StartGame");
+                    EventHandle.emit('PlayButtonClickSound');
                 });
             }
 
@@ -143,94 +160,86 @@ export class GameMenu extends Container {
         this.settingBoard.scale.set(0.8);
         this.addChild(this.settingBoard);
 
+        this.settingText = new Text({
+            text:"Settings",
+            style:{
+                fontFamily: "Fancake",
+                fontSize: 50,
+                fill: "#ffffff",
+                align: "center"
+            }
+        });
+
+        this.settingText.anchor.set(0.5);
+        this.settingText.position.set(0, -this.settingBoard.height / 2 - 20);
+        this.settingBoard.addChild(this.settingText);
+
         // Sound Button
-        const soundButton = new Sprite(this.soundButtonTexture[0]);
+        const soundButton = new Sprite(this.soundState ? this.soundButtonTexture[0] : this.soundButtonTexture[3]);
         soundButton.anchor.set(0.5);
         soundButton.scale.set(0.5);
         soundButton.position.set(0, -this.settingBoard.height / 4);
         this.settingBoard.addChild(soundButton);
 
-        let soundButtonClicked = false;
-
         soundButton.interactive = true;
         soundButton.cursor = 'pointer';
 
         soundButton.on('mouseover', () => {
-            if (!soundButtonClicked) {
-                soundButton.texture = this.soundButtonTexture[1];
-            }
+            soundButton.texture = this.soundState ? this.soundButtonTexture[1] : this.soundButtonTexture[3];
         });
 
         soundButton.on('mouseout', () => {
-            if (!soundButtonClicked) {
-                soundButton.texture = this.soundButtonTexture[0];
-            }
+            soundButton.texture = this.soundState ? this.soundButtonTexture[0] : this.soundButtonTexture[3];
         });
 
         soundButton.on('mousedown', () => {
-            if (!soundButtonClicked) {
-                soundButton.texture = this.soundButtonTexture[2];
-            }
+            soundButton.texture = this.soundState ? this.soundButtonTexture[2] : this.soundButtonTexture[3];
         });
 
         soundButton.on('mouseup', () => {
-            if (!soundButtonClicked) {
-                soundButton.texture = this.soundButtonTexture[1];
-            }
+            soundButton.texture = this.soundState ? this.soundButtonTexture[1] : this.soundButtonTexture[3];
         });
 
         soundButton.on('click', () => {
-            if (soundButtonClicked) {
-                soundButton.texture = this.soundButtonTexture[0];
-            } else {
-                soundButton.texture = this.soundButtonTexture[3];
-            }
-            soundButtonClicked = !soundButtonClicked;
+            this.soundState = !this.soundState;
+            soundButton.texture = this.soundState ? this.soundButtonTexture[0] : this.soundButtonTexture[3];
+            EventHandle.emit(this.soundState ? 'UnmuteSound' : 'MuteSound');
+            this.setSoundStateToLocalStorage(this.soundState);
+            EventHandle.emit('PlayButtonClickSound');
         });
 
         // FX Button
-        const fxButton = new Sprite(this.musicButtonTexture[0]);
-        fxButton.anchor.set(0.5);
-        fxButton.scale.set(0.5);
-        fxButton.position.set(0, this.settingBoard.height / 4 - 50);
-        this.settingBoard.addChild(fxButton);
+        const musicButton = new Sprite(this.musicState ? this.musicButtonTexture[0] : this.musicButtonTexture[3]);
+        musicButton.anchor.set(0.5);
+        musicButton.scale.set(0.5);
+        musicButton.position.set(0, this.settingBoard.height / 4 - 50);
+        this.settingBoard.addChild(musicButton);
 
-        let fxButtonClicked = false;
+        musicButton.interactive = true;
+        musicButton.cursor = 'pointer';
 
-        fxButton.interactive = true;
-        fxButton.cursor = 'pointer';
-
-        fxButton.on('mouseover', () => {
-            if (!fxButtonClicked) {
-                fxButton.texture = this.musicButtonTexture[1];
-            }
+        musicButton.on('mouseover', () => {
+            musicButton.texture = this.musicState ? this.musicButtonTexture[1] : this.musicButtonTexture[3];
         });
 
-        fxButton.on('mouseout', () => {
-            if (!fxButtonClicked) {
-                fxButton.texture = this.musicButtonTexture[0];
-            }
+        musicButton.on('mouseout', () => {
+            musicButton.texture = this.musicState ? this.musicButtonTexture[0] : this.musicButtonTexture[3];
         });
 
-        fxButton.on('mousedown', () => {
-            if (!fxButtonClicked) {
-                fxButton.texture = this.musicButtonTexture[2];
-            }
+        musicButton.on('mousedown', () => {
+            musicButton.texture = this.musicState ? this.musicButtonTexture[2] : this.musicButtonTexture[3];
         });
 
-        fxButton.on('mouseup', () => {
-            if (!fxButtonClicked) {
-                fxButton.texture = this.musicButtonTexture[1];
-            }
+        musicButton.on('mouseup', () => {
+            musicButton.texture = this.musicState ? this.musicButtonTexture[1] : this.musicButtonTexture[3];
         });
 
-        fxButton.on('click', () => {
-            if (fxButtonClicked) {
-                fxButton.texture = this.musicButtonTexture[0];
-            } else {
-                fxButton.texture = this.musicButtonTexture[3];
-            }
-            fxButtonClicked = !fxButtonClicked;
+        musicButton.on('click', () => {
+            this.musicState = !this.musicState;
+            musicButton.texture = this.musicState ? this.musicButtonTexture[0] : this.musicButtonTexture[3];
+            EventHandle.emit(this.musicState ? 'UnmuteMusic' : 'MuteMusic');
+            this.setMusicStateToLocalStorage(this.musicState);
+            EventHandle.emit('PlayButtonClickSound');
         });
 
         // Back Button
@@ -240,12 +249,15 @@ export class GameMenu extends Container {
         backButton.position.set(0, this.settingBoard.height / 2 - 50);
         this.settingBoard.addChild(backButton);
 
-        const backButtonText = new Text("Back", new TextStyle({
+        const backButtonText = new Text({
+            text: "Back", 
+            style: {
             fontFamily: "Fancake",
             fontSize: 80,
             fill: "#ffffff",
             align: "center"
-        }));
+            }
+        });
         backButtonText.anchor.set(0.5);
         backButton.addChild(backButtonText);
 
@@ -271,6 +283,25 @@ export class GameMenu extends Container {
         backButton.on('click', () => {
             this.removeChild(this.settingBoard);
             this.MainMenu();
+            EventHandle.emit('PlayButtonClickSound');
         });
+    }
+
+    getSoundStateFromLocalStorage(): boolean {
+        const state = localStorage.getItem('soundState');
+        return state ? JSON.parse(state) : true;
+    }
+
+    setSoundStateToLocalStorage(state: boolean) {
+        localStorage.setItem('soundState', JSON.stringify(state));
+    }
+
+    getMusicStateFromLocalStorage(): boolean {
+        const state = localStorage.getItem('musicState');
+        return state ? JSON.parse(state) : true;
+    }
+
+    setMusicStateToLocalStorage(state: boolean) {
+        localStorage.setItem('musicState', JSON.stringify(state));
     }
 }

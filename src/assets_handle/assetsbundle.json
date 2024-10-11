@@ -6,7 +6,7 @@
         "assets": [
             {
                 "alias": "background",
-                "src": "./raw_assets/background/bg.png"
+                "src": "./atlas/bg.png"
             },
             {
                 "alias": "tilemap",
@@ -30,11 +30,11 @@
             },
             {
                 "alias": "soundpackjson",
-                "src": "./soundsprite/soundpackresult.json"
+                "src": "./atlas/soundsprite/soundpackresult.json"
             },
             {
                 "alias": "soundpackmp3",
-                "src": "./soundsprite/soundpackresult.mp3"
+                "src": "./atlas/soundsprite/soundpackresult.mp3"
             }
         ]
       },

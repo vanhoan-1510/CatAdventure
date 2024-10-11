@@ -2,9 +2,7 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const WebpackObfuscator = require('webpack-obfuscator');
-
 const isProduction = process.env.NODE_ENV === 'production';
-
 module.exports = {
     entry: './src/index.ts',
     module: {
@@ -33,7 +31,9 @@ module.exports = {
         ...(isProduction ? [
             new CopyPlugin({
                 patterns: [
-                    { from: 'assets/atlas', to: 'atlas' }
+                    { from: 'assets/atlas', to: 'atlas' },
+                    { from: 'assets/font', to: 'font' }
+                    
                 ]
             }),
             new WebpackObfuscator({

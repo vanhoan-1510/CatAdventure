@@ -15,7 +15,8 @@ export class Character extends Container {
     private world: World;
 
     private isRunning: boolean = false;
-    private isJumping: boolean = false;
+    public isJumping: boolean = false;
+    public canJump: boolean = false;
     public isDead: boolean = false;
 
     private keysPressed: Set<string> = new Set();
@@ -28,6 +29,15 @@ export class Character extends Container {
         this.Init();
         EventHandle.on('Dead', () => this.Dead());
         EventHandle.on('Win', () => this.GameWin());
+        EventHandle.on('CanJump', () => {
+            this.isJumping = false;
+            this.canJump = true;
+        });
+
+        EventHandle.on('Cannotjump', () => {
+            this.isJumping = true;
+            this.canJump = false;
+        });
     }
 
     Init() {
@@ -50,6 +60,10 @@ export class Character extends Container {
         });
 
         this.addKeyboardListeners();
+    }
+
+    CharacterCanJump(){
+        this.canJump = true;
     }
 
     private async preloadAnimations() {
@@ -89,12 +103,7 @@ export class Character extends Container {
     private addKeyboardListeners(): void {
         window.addEventListener('keydown', (event: KeyboardEvent): void => {
             this.keysPressed.add(event.key.toLowerCase());
-            if(event.key === 'r') {
-                EventHandle.emit('ResetGame');
-            }
-
             if (this.isDead) return;
-
             if (event.key === 'a' || event.key === 'A' || event.key === 'ArrowLeft') {
                 this.characterDirection = -1;
                 this.characterSprite.scale.x = this.characterDirection;
@@ -117,6 +126,7 @@ export class Character extends Container {
                 this.isJumping = true;
                 this.playAnimation("jump", false, 0.25);
                 this.characterBody.velocity.y = -0.7;
+                this.canJump = false;
             }
         });
 
@@ -157,9 +167,9 @@ export class Character extends Container {
         if (this.isDead) return;
         this.playAnimation("dead", false, 0.5);
         EventHandle.emit('DeadSound');
-        EventHandle.emit('UpdateScore', -100);
+        EventHandle.emit('UpdateScore', -100, false);
         EventHandle.emit('ShowGameNotification');
-        EventHandle.emit('PlayerLose', false);
+        // EventHandle.emit('PlayerLose', false);
         this.characterBody.velocity.x = 0;
         this.isDead = true;
     }

@@ -94,6 +94,9 @@ export class Trap extends Container {
     private woodTrapRotationSpeed: number = 0.2;
     private fistRotationSpeed: number = 0.5; 
 
+    private isTrap1Activated: boolean = false;
+    private isFootIconShow: boolean = false;
+    private isFootTrapActivated: boolean = false;
     public isSunTrapEnabled: boolean = false;
     private bombActivated: boolean = false;
     private isGroundSplit: boolean = false;
@@ -216,16 +219,24 @@ export class Trap extends Container {
 
             this.questionBlock.position.set(GameConfig.SCREEN_WIDTH - 380, GameConfig.SCREEN_HEIGHT / 2 + 100);
             this.questionBlock.anchor.set(0.5, 0.5);
-        } else {
-            console.error('Not all block textures were loaded successfully.');
         }
     }
 
-    Resolvetrap1() {
-        this.questionBlock.visible = true;
-        this.blockBody = new Body(this.questionBlock.position.x + 10, this.questionBlock.position.y + 10, this.questionBlock.width, this.questionBlock.height, 1, true, 0, 'block');
-        this.world.addBodyB(this.blockBody);
+    Trap1Resolve(characterPosition: { x: number, y: number }) {
+
+        if (!this.isTrap1Activated && 
+            characterPosition.x >= this.questionBlock.position.x - 50 && characterPosition.x <= this.questionBlock.position.x + 50 &&
+            characterPosition.y >= this.questionBlock.position.y - 70 && characterPosition.y <= this.questionBlock.position.y + 70
+        ) {
+            this.questionBlock.visible = true;
+            this.blockBody = new Body(this.questionBlock.position.x + 10, this.questionBlock.position.y + 10, 
+                this.questionBlock.width, this.questionBlock.height, 1, true, 0, 'ground');
+            this.world.addBodyB(this.blockBody);
+            this.isTrap1Activated = true;
+        }
     }
+
+
 
     _Trap2() {
         const wallPositions = [
@@ -246,7 +257,7 @@ export class Trap extends Container {
             wall.position.set(position.x, position.y);
             wall.anchor.set(0.5, 0.5);
             this.addChild(wall);
-            const wallTrapBodies = new Body(wall.position.x + 10, wall.position.y + 10, wall.width, wall.height, 1, true, 0, 'wall');
+            const wallTrapBodies = new Body(wall.position.x + 10, wall.position.y + 10, wall.width, wall.height, 1, true, 0, 'ground');
             this.world.addBodyB(wallTrapBodies);
         });
 
@@ -316,6 +327,23 @@ export class Trap extends Container {
         this.footIcon.visible = false;
     }
 
+    Trap2Resolve(characterPosition: { x: number, y: number }, delta: number) {
+        if (characterPosition.x >= this.footIcon.position.x - 20 && characterPosition.x <= this.footIcon.position.x + 30 &&
+            characterPosition.y >= this.footIcon.position.y - 30 && characterPosition.y <= this.footIcon.position.y + 100 &&
+            !this.isFootIconShow
+        ) {
+            this.isFootIconShow = true;
+        }
+
+        if(this.isFootIconShow
+            && characterPosition.x >= this.footIcon.position.x - 30 && characterPosition.x <= this.footIcon.position.x + 30
+            && characterPosition.y >= this.footIcon.position.y - 100&& characterPosition.y <= this.footIcon.position.y 
+        ) {
+            this.isFootTrapActivated = true;
+            EventHandle.emit('Dead');
+        }
+    }
+
     _Trap3() {
         this.sun = new Sprite(this.sunTexture);
         this.sun.position = GameConfig.SUN_DEFAULT_POSISION;
@@ -327,12 +355,16 @@ export class Trap extends Container {
         this.addChild(this.sun);
     }
 
-    Trap3Resolve() {
-        this.sunBody.isStatic = false;
+
+    Trap3Resolve(characterPosition: { x: number, y: number }) {
+        if (characterPosition.x >= this.sun.position.x - 70
+        ) {
+            this.sunBody.isStatic = false;
         if (this.sunBody.velocity.y > 2) {
             this.sunBody.velocity.y = 2;
         }
         this.isSunTrapEnabled = true;
+        }
     }
 
     _Trap4() {
@@ -360,7 +392,7 @@ export class Trap extends Container {
         this.tube.position.set(2900, GameConfig.SCREEN_HEIGHT / 2 + 500);
         this.tube.scale.set(1.3);
         this.tube.anchor.set(0.5, 0.5);
-        const tubeBody1 = new Body(this.tube.position.x - 20, this.tube.position.y -360, this.tube.width , this.tube.height, 1, true, 0, 'tube');
+        const tubeBody1 = new Body(this.tube.position.x - 20, this.tube.position.y -360, this.tube.width , this.tube.height, 1, true, 0, 'ground');
         this.world.addBodyB(tubeBody1);
         this.addChild(this.tube);
 
@@ -368,7 +400,7 @@ export class Trap extends Container {
         tube2.position.set(3350, GameConfig.SCREEN_HEIGHT / 2 + 450);
         tube2.scale.set(1.3);
         tube2.anchor.set(0.5, 0.5);
-        const tube2Body = new Body(tube2.position.x - 20, tube2.position.y -360, tube2.width / 1  , tube2.height, 1, true, 0, 'tube');
+        const tube2Body = new Body(tube2.position.x - 20, tube2.position.y -360, tube2.width / 1  , tube2.height, 1, true, 0, 'ground');
         this.world.addBodyB(tube2Body);
         this.addChild(tube2);
 
@@ -385,7 +417,7 @@ export class Trap extends Container {
                 block.play();
                 block.position.set(position.x, position.y);
                 block.anchor.set(0.5, 0.5);
-                const blockBody = new Body(position.x + 10, position.y + 10, block.width, block.height, 1, true, 0, 'block');
+                const blockBody = new Body(position.x + 10, position.y + 10, block.width, block.height, 1, true, 0, 'ground');
                 this.world.addBodyB(blockBody);
                 this.addChild(block);
             });
@@ -446,12 +478,12 @@ export class Trap extends Container {
             this.wallTrap.push(wall);
         
             // Tạo body cho wallTrap ở vị trí thứ nhất
-            const wallTrapBody1 = new Body(wall.position.x - 70, wall.position.y + 10, wall.width / 2, wall.height, 1, true, 0, 'wall');
+            const wallTrapBody1 = new Body(wall.position.x - 70, wall.position.y + 10, wall.width / 2, wall.height, 1, true, 0, 'ground');
             this.world.addBodyB(wallTrapBody1);
             this.wallTrapBodies.push(wallTrapBody1);
         
             // Tạo body cho wallTrap ở vị trí thứ hai
-            const wallTrapBody2 = new Body(wall.position.x + 100, wall.position.y + 10, wall.width / 2, wall.height, 1, true, 0, 'wall');
+            const wallTrapBody2 = new Body(wall.position.x + 100, wall.position.y + 10, wall.width / 2, wall.height, 1, true, 0, 'ground');
             this.world.addBodyB(wallTrapBody2);
             this.wallTrapBodies.push(wallTrapBody2);
         });
@@ -460,7 +492,7 @@ export class Trap extends Container {
         tube3.position.set(3800, GameConfig.SCREEN_HEIGHT / 2 + 300);
         tube3.scale.set(1.3);
         tube3.anchor.set(0.5, 0.5);
-        const tube3Body = new Body(tube3.position.x - 20, tube3.position.y -360, tube3.width , tube3.height, 1, true, 0, 'tube');
+        const tube3Body = new Body(tube3.position.x - 20, tube3.position.y -360, tube3.width , tube3.height, 1, true, 0, 'ground');
         this.world.addBodyB(tube3Body);
         this.addChild(tube3);
 
@@ -545,9 +577,9 @@ export class Trap extends Container {
         tube.position.set(5500, GameConfig.SCREEN_HEIGHT / 2 + 300);
         tube.scale.set(1.5);
         tube.anchor.set(0.5, 0.5);
-        const tubeBody1 = new Body(tube.position.x - 20, tube.position.y - 195, tube.width /30, tube.height, 1, true, 0, 'tube');
+        const tubeBody1 = new Body(tube.position.x - 20, tube.position.y - 195, tube.width /30, tube.height, 1, true, 0, 'ground');
         this.world.addBodyB(tubeBody1);
-        const tubeBody2 = new Body(tube.position.x + 70, tube.position.y - 195, tube.width /30, tube.height, 1, true, 0, 'tube');
+        const tubeBody2 = new Body(tube.position.x + 70, tube.position.y - 195, tube.width /30, tube.height, 1, true, 0, 'ground');
         this.world.addBodyB(tubeBody2);
 
         const tube2 = new Sprite(Assets.get('shorttuberotate'));
@@ -595,6 +627,7 @@ export class Trap extends Container {
                 characterBody.velocity.y = -0.7;
                 this.mushroomRoad[i].gotoAndStop(0);
                 this.mushroomRoad[i].play();
+                EventHandle.emit('JumpSound');
             }
         }
     }
@@ -627,6 +660,7 @@ export class Trap extends Container {
                 characterBody.velocity.y = -0.5;
                 this.spikeAnim[i].gotoAndStop(0);
                 this.spikeAnim[i].play();
+                EventHandle.emit('JumpSound');
             }
         }
     }
@@ -641,7 +675,8 @@ export class Trap extends Container {
         this.centerGround = new Sprite(this.rightGroundTexture);
         this.centerGround.position.set(6850, GameConfig.SCREEN_HEIGHT / 2 + GameConfig.TILE_SIZE * 2);
         // centerGround.anchor.set(0.5, 0.5);
-        const centerGroundBody = new Body(this.centerGround.position.x - 100, this.centerGround.position.y + GameConfig.TILE_SIZE, this.centerGround.width * 2, this.centerGround.height / 2, 1, true, 0, 'ground');
+        const centerGroundBody = new Body(this.centerGround.position.x - 100, this.centerGround.position.y + GameConfig.TILE_SIZE, 
+            this.centerGround.width * 2, this.centerGround.height / 2, 1, true, 0, 'ground');
         this.world.addBodyB(centerGroundBody);
         this.addChild(this.centerGround);
 
@@ -654,10 +689,12 @@ export class Trap extends Container {
 
         this.rightGround = new Sprite(this.rightGroundTexture);
         this.rightGround.position.set(this.centerGround.position.x + this.centerGround.width, GameConfig.SCREEN_HEIGHT / 2 + GameConfig.TILE_SIZE * 2);
-        this.rightGroundBody = new Body(this.rightGround.position.x + 20, this.rightGround.position.y - 100, this.rightGround.height, this.rightGround.width, 1, true, 0, 'ground');
+        this.rightGroundBody = new Body(this.rightGround.position.x + 20, this.rightGround.position.y - 100, 
+            this.rightGround.height, this.rightGround.width, 1, true, 0, 'ground');
         this.rightGround.anchor.set(0, 0);
         // this.rightGround.rotation = - Math.PI / 2;
-        const rightGroundBody = new Body(this.rightGround.position.x, this.rightGround.position.y + GameConfig.TILE_SIZE, this.rightGround.width, this.rightGround.height / 2, 1, true, 0, 'ground');
+        const rightGroundBody = new Body(this.rightGround.position.x, this.rightGround.position.y + GameConfig.TILE_SIZE, 
+            this.rightGround.width, this.rightGround.height / 2, 1, true, 0, 'ground');
         this.world.addBodyB(rightGroundBody);
         this.addChild(this.rightGround);
 
@@ -665,7 +702,7 @@ export class Trap extends Container {
         this.bBlock.position.set(6880, GameConfig.SCREEN_HEIGHT / 2 - 100);
         this.bBlock.anchor.set(0.5, 0.5);
         this.bBlock.visible = false;
-        const bBlockBody = new Body(this.bBlock.position.x, this.bBlock.position.y + 10, this.bBlock.width, this.bBlock.height, 1, true, 0, 'block');
+        const bBlockBody = new Body(this.bBlock.position.x, this.bBlock.position.y + 10, this.bBlock.width, this.bBlock.height, 1, true, 0, 'ground');
         this.world.addBodyB(bBlockBody);
         this.addChild(this.bBlock);
 
@@ -673,7 +710,7 @@ export class Trap extends Container {
         this.yBlock.position.set(6880 + 40, GameConfig.SCREEN_HEIGHT / 2 - 100);
         this.yBlock.anchor.set(0.5, 0.5);
         this.yBlock.visible = false;
-        const yBlockBody = new Body(this.yBlock.position.x, this.yBlock.position.y + 10, this.yBlock.width, this.yBlock.height, 1, true, 0, 'block');
+        const yBlockBody = new Body(this.yBlock.position.x, this.yBlock.position.y + 10, this.yBlock.width, this.yBlock.height, 1, true, 0, 'ground');
         this.world.addBodyB(yBlockBody);
         this.addChild(this.yBlock);
 
@@ -681,7 +718,7 @@ export class Trap extends Container {
         this.eBlock.position.set(6880 + 80, GameConfig.SCREEN_HEIGHT / 2 - 100);
         this.eBlock.anchor.set(0.5, 0.5);
         this.eBlock.visible = false;
-        const eBlockBody = new Body(this.eBlock.position.x, this.eBlock.position.y + 10, this.eBlock.width, this.eBlock.height, 1, true, 0, 'block');
+        const eBlockBody = new Body(this.eBlock.position.x, this.eBlock.position.y + 10, this.eBlock.width, this.eBlock.height, 1, true, 0, 'ground');
         this.world.addBodyB(eBlockBody);
         this.addChild(this.eBlock);
 
@@ -722,6 +759,7 @@ export class Trap extends Container {
                         this.bomb.visible = false;
                         this.explosion.visible = true;
                         this.explosion.play();
+                        EventHandle.emit('ExplosionSound');
                         EventHandle.emit('Dead');
                     };
                 }, 2000);
@@ -847,7 +885,6 @@ export class Trap extends Container {
         this.fakeCat1.scale.x = -1;
         this.fakeCat1.visible = false;
         this.addChild(this.fakeCat1);
-        console.log(this.fakeCat1.position);
 
         this.fakeCat2 = new Sprite(this.catTexture);
         this.fakeCat2.position.set(10300, GameConfig.TILE_SIZE - 5);
@@ -916,6 +953,14 @@ export class Trap extends Container {
             this.sunBody.isStatic = true;
         }
 
+        if(this.isFootIconShow){
+            this.ShowFootIcon(delta);
+        }
+
+        if(this.isFootTrapActivated){
+            this.ShowFootTrap(delta);
+        }
+
         this.world.update(delta);
         this.MoveWoodUpDown();
 
@@ -927,6 +972,9 @@ export class Trap extends Container {
 
     public reset() {
         this.questionBlock.visible = false;
+        this.isTrap1Activated = false;
+        this.isFootIconShow = false;
+        this.isFootTrapActivated = false;
         this.isPlayPuchSound = false;
         this.footIcon.position.set(1840, GameConfig.SCREEN_HEIGHT / 2 + 100);
         this.footIcon.visible = false;

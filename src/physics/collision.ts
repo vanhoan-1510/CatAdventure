@@ -65,11 +65,16 @@ export class Collision {
                 this.hasEmittedDead = true;
             }
             else if (bodyB.type === 'gamewin') {
-                EventHandle.emit('Win');
-                EventHandle.emit('PlayerWin', true);
-                EventHandle.emit('UpdateScore', 1000);
+                EventHandle.emit('PlayWinSound');
+                EventHandle.emit('UpdateScore', 1000, true);
                 EventHandle.emit('ShowGameNotification');
             }
+            if(bodyB.type === 'ground') {
+                EventHandle.emit('Canjump');
+            } else{
+                EventHandle.emit('Cannotjump');
+            }
+                
         } else {
             // Reset the event flag when no collision is detected
             this.hasEmittedDead = false;
